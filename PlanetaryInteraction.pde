@@ -34,7 +34,7 @@ void setup() {
 	size(1024, 1024);
 	
 	//vector2 variables
-	speed = new PVector(0, 2);
+	speed = new PVector(0, 4);
 	position = new PVector(512, 700);
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
@@ -42,12 +42,12 @@ void setup() {
 	
 	//positional variables
 	distanceToStar = 0;
-	thrusterStrength = 0.003;
+	thrusterStrength = 0.01;
 	gravityStrength = 0.05;
 	rotationSpeed = 2.5;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 3;
+	maxSpeed = 5;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
@@ -103,10 +103,10 @@ void draw() {
 	speedToStar.y = (float)Math.round(speedToStarY * 100) / 100;
 
 	//calculate gravity scale
-	gravityStrength = (float)(4 * (1000)/(Math.pow(distanceToStar, 2)));
-	//increases gravity if outside playing field
+	gravityStrength = (float)(2 * (100)/(Math.pow(distanceToStar, 1.5))); //realistic gravity formula
+	//exponentially increases gravity if outside playing field
 	if(distanceToStar > playfield/2){ 
-		gravityStrength = 0.2;
+		gravityStrength = (float)((Math.pow((distanceToStar)-(playfield/2), 1.1))/1000);
 	}
 
 	//apply to speed
@@ -157,6 +157,7 @@ void draw() {
 
 	heading = getAngleXY(speed.x, speed.y);
 
+	//only show this if in debug view
 	if(debugView)
 	{
 		//show center off mass
@@ -318,13 +319,14 @@ void keyReleased()
 }
 void reset(){
 	//reset every variable except debug
+	//load rocket.png image 
 	rocketImage = loadImage("Rocket.png");
 
 	//window size
 	size(1024, 1024);
 	
 	//vector2 variables
-	speed = new PVector(0, 2);
+	speed = new PVector(0, 4);
 	position = new PVector(512, 700);
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
@@ -332,16 +334,17 @@ void reset(){
 	
 	//positional variables
 	distanceToStar = 0;
-	thrusterStrength = 0.003;
+	thrusterStrength = 0.01;
 	gravityStrength = 0.05;
 	rotationSpeed = 2.5;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 3;
+	maxSpeed = 5;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
 
 	//input booleans
 	up = down = left = right = false;
+	debugView = false;
 }

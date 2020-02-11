@@ -50,7 +50,7 @@ public void setup() {
 	
 	
 	//vector2 variables
-	speed = new PVector(0, 2);
+	speed = new PVector(0, 4);
 	position = new PVector(512, 700);
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
@@ -58,12 +58,12 @@ public void setup() {
 	
 	//positional variables
 	distanceToStar = 0;
-	thrusterStrength = 0.003f;
+	thrusterStrength = 0.01f;
 	gravityStrength = 0.05f;
 	rotationSpeed = 2.5f;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 3;
+	maxSpeed = 5;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
@@ -119,10 +119,10 @@ public void draw() {
 	speedToStar.y = (float)Math.round(speedToStarY * 100) / 100;
 
 	//calculate gravity scale
-	gravityStrength = (float)(4 * (1000)/(Math.pow(distanceToStar, 2)));
-	//increases gravity if outside playing field
+	gravityStrength = (float)(2 * (100)/(Math.pow(distanceToStar, 1.5f))); //realistic gravity formula
+	//exponentially increases gravity if outside playing field
 	if(distanceToStar > playfield/2){ 
-		gravityStrength = 0.2f;
+		gravityStrength = (float)((Math.pow((distanceToStar)-(playfield/2), 1.1f))/1000);
 	}
 
 	//apply to speed
@@ -173,6 +173,7 @@ public void draw() {
 
 	heading = getAngleXY(speed.x, speed.y);
 
+	//only show this if in debug view
 	if(debugView)
 	{
 		//show center off mass
@@ -334,13 +335,14 @@ public void keyReleased()
 }
 public void reset(){
 	//reset every variable except debug
+	//load rocket.png image 
 	rocketImage = loadImage("Rocket.png");
 
 	//window size
 	size(1024, 1024);
 	
 	//vector2 variables
-	speed = new PVector(0, 2);
+	speed = new PVector(0, 4);
 	position = new PVector(512, 700);
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
@@ -348,18 +350,19 @@ public void reset(){
 	
 	//positional variables
 	distanceToStar = 0;
-	thrusterStrength = 0.003f;
+	thrusterStrength = 0.01f;
 	gravityStrength = 0.05f;
 	rotationSpeed = 2.5f;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 3;
+	maxSpeed = 5;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
 
 	//input booleans
 	up = down = left = right = false;
+	debugView = false;
 }
   public void settings() { 	size(1024, 1024); }
   static public void main(String[] passedArgs) {
