@@ -14,21 +14,39 @@ import java.io.IOException;
 
 public class PlanetaryInteraction extends PApplet {
 
-int Gray = color(123, 123, 123);
-int White = color(255, 255, 255);
+
+float a;
+float fx, fy;
+float b;
 
 public void setup() {
-	
+  
+  
+  fill(255);
+  rectMode(CENTER);
 }
 
 public void draw() {
-	background(0);
-	fill(Gray);
-	ellipse(512, 512, 800, 800);
-	fill(White);
-	ellipse(512, 512, 50, 50);
+  background(0);
+
+  pushMatrix();
+  translate(512, 512);
+  rotate(b); 
+  rect(0, 0, 50, 50);
+  b += 0.1f;
+  popMatrix();
 }
-  public void settings() { 	size(1024, 1024); }
+public void rectDraw(int r, int s, float c, float d)
+{
+  for (float i=0; i<2*PI; i=i+c)
+  {
+    fx = r*cos(i);
+    fy = r*sin(i);
+    rect(fx, fy, s, s);
+  }
+}
+
+  public void settings() {  size(1024, 1024);  smooth(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PlanetaryInteraction" };
     if (passedArgs != null) {
