@@ -14,125 +14,100 @@ import java.io.IOException;
 
 public class PlanetaryInteraction extends PApplet {
 
-PVector rocketLocation;
-float rocketAngle;
-float rocketHeading;
-float rocketSpeed, maxSpeed;
+PVector speed;
+PVector position;
+PVector addSpeed;
+
+float thrusterStrength;
+float rotationSpeed;
+float heading;
 float angle;
-float maxangle = PI/4;
-float offsetBase, minWB, maxWB;
-float turnStrength;
+float maxSpeed;
 
-boolean plus, minus, up, down, left, right, steerLock;
+float addspeedX;
+float addspeedY;
 
-PVector front;
-PVector back;
-PVector dirSpeed;
+boolean up, down, left, right;
 
-
-public void setup()
-{
+public void setup() {
+	//window size
 	
 	
+	//vector2 variables
+	speed = new PVector(0, 0);
+	position = new PVector(512, 512);
+	addSpeed = new PVector(0, 0);
 
-	up = down = left = right = steerLock = false;
-
-	rocketLocation = new PVector(width/2, height/2);
-	rocketAngle = PI;
-	rocketSpeed = 0;
-	maxSpeed = 5;
+	//positional variables
+	thrusterStrength = 0.05f;
+	rotationSpeed = 2;
+	heading = 0;
 	angle = 0;
-	offsetBase = 50; //used for front and back of rocket calculations
-	minWB = 30;
-	maxWB = 150;
-	turnStrength = 0.1f;
+	maxSpeed = 5;
+
+	//input booleans
+	up = down = left = right = false;
 }
 
+public void draw() {
 
-public void draw()
-{
-	//sets background color
-	background(100, 100, 100);
+	//update angle on input
+	if(right == true) angle += rotationSpeed;
+	if(left == true) angle -= rotationSpeed;
 
-	//updates front and back pos
-	front =  new PVector(rocketLocation.x+(offsetBase/2)*sin(rocketAngle), rocketLocation.y+(offsetBase/2)*cos(rocketAngle));
-	back =  new PVector(rocketLocation.x-(offsetBase/2)*sin(rocketAngle), rocketLocation.y-(offsetBase/2)*cos(rocketAngle));
+	if(up == true)
+	{
+		//angle to vector2
+		addspeedX = (float)Math.cos(radians(angle));
+		addspeedY = (float)Math.sin(radians(angle));
 
-	//set rocket pos start
+		//round addSpeed to two decimal places
+		addSpeed.x = (float)Math.round(addspeedX * 100) / 100;
+		addSpeed.y = (float)Math.round(addspeedY * 100) / 100;
+
+		//print for debugging
+		//println(addSpeed);
+
+		//apply to speed
+		speed.x += addSpeed.x * thrusterStrength;
+		speed.y += addSpeed.y * thrusterStrength;
+	}
+	
+	//limit speed
+	if(speed.x > maxSpeed)
+	{
+		speed.x = maxSpeed;
+	}
+	if(speed.y > maxSpeed)
+	{
+		speed.y = maxSpeed;
+	}
+	
+	//round speed
+	speed.x = (float)Math.round(speed.x * 100) / 100;
+	speed.y = (float)Math.round(speed.y * 100) / 100;
+	
+	//print for debugging
+	println(speed);
+
+	//apply speed
+	position.x += speed.y;
+	position.y -= speed.x;
+
+	//set background color
+	background(0);
+
+	//update position and rotation
 	pushMatrix();
-	translate(rocketLocation.x, rocketLocation.y);
-	rotate(-rocketAngle);
+	translate(position.x, position.y);
+	rotate(radians(angle));
 	rectMode(CENTER);
 	fill(255);
 	rect(0, 0, 50, 100);
 	popMatrix();
-	//set rocket pos end
-
-	front.add(rocketSpeed*sin(rocketAngle+angle), rocketSpeed*cos(rocketAngle+angle), 0);
-	back.add(rocketSpeed*sin(rocketAngle), rocketSpeed*cos(rocketAngle), 0);
-
-	//rounds front and back of rocket to set rocketlocation
-	rocketLocation.set(front.x+back.x, front.y+back.y, 0) ;
-	rocketLocation.div(2);
-
-	//loop pos at top and bottom of screen
-	if (rocketLocation.x<0) rocketLocation.x=width;  
-	if (rocketLocation.x>width) rocketLocation.x=0;  
-	if (rocketLocation.y<0) rocketLocation.y=height;  
-	if (rocketLocation.y>height) rocketLocation.y=0;  
-
-	//Don't touch this please - it does things maf related
-	rocketAngle = atan2( front.x - back.x, front.y - back.y );
-
-	//fill lmao
-	fill(255);
-
-	//left
-	if (left) 
-	{
-		if (angle < maxangle) angle += turnStrength;
-		if (angle>maxangle) angle = maxangle;
-	}
-	else
-	{
-		if (!steerLock) if (angle > 0) angle -= turnStrength;
-	}
-
-	//right
-	if (right)
-	{
-		if (angle >  -maxangle)  angle -= turnStrength;
-		if (angle<-maxangle) angle = -maxangle;
-	}
-	else
-	{
-		if (!steerLock) if (angle < 0) angle += turnStrength;
-	}
-
-	//up
-	if (up)
-	{ 
-		if (rocketSpeed<maxSpeed) rocketSpeed += 0.05f;
-	}
-
-	//down
-	if (down)
-	{
-		if (rocketSpeed>0) rocketSpeed -= 0.15f; //brake
-		else 
-			if (abs(rocketSpeed)<maxSpeed) rocketSpeed -= 0.05f; // reverse
-	}
-
-	//rounds angle
-	if (abs(angle)<turnStrength) angle = 0;
-
-	if (rocketSpeed>0) rocketSpeed -= 0.01f; //friction for forward
-	if (rocketSpeed<0) rocketSpeed += 0.01f; //friction for backward
-
-	//slow down if neither up or down is pressed
-	if ((!up && !down) && (abs(rocketSpeed)<0.01f))  rocketSpeed=0; 
 }
 
+//key held down variable updates
 public void keyPressed()
 {
 	if (key == CODED) 
@@ -152,13 +127,36 @@ public void keyPressed()
 				break;
 		}
 	}
+	if (key != CODED)
+	{
+		switch(key)
+		{
+			case 'd':
+			case 'D':
+				right=true;
+				break;
+			case 'a':
+			case 'A':
+				left=true;
+				break;
+			case 'w':
+			case 'W':
+				up=true;
+				break;
+			case 's':
+			case 'S':
+				down=true;
+				break;
+		}
+	}
 }
 
 public void keyReleased()
 {
 	if (key == CODED) 
 	{
-		switch(keyCode) {
+		switch(keyCode) 
+		{
 			case LEFT: 
 				left=false;
 				break;
@@ -173,8 +171,30 @@ public void keyReleased()
 				break;
 		}
 	}
+	if (key != CODED)
+	{
+		switch(key)
+		{
+			case 'd':
+			case 'D':
+				right=false;
+				break;
+			case 'a':
+			case 'A':
+				left=false;
+				break;
+			case 'w':
+			case 'W':
+				up=false;
+				break;
+			case 's':
+			case 'S':
+				down=false;
+				break;
+		}
+	}
 }
-  public void settings() { 	size(1024, 1024); 	smooth(); }
+  public void settings() { 	size(1024, 1024); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PlanetaryInteraction" };
     if (passedArgs != null) {

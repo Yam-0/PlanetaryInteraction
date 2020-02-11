@@ -1,13 +1,12 @@
 PVector rocketLocation;
 float rocketAngle;
 float rocketHeading;
-float rocketSpeed, maxSpeed;
-float angle;
+float rocketSpeed, maxSpeed1;
+float angle1;
 float maxangle = PI/4;
 float offsetBase, minWB, maxWB;
 float turnStrength;
 
-boolean plus, minus, up, down, left, right, steerLock;
 
 PVector front;
 PVector back;
