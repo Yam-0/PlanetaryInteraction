@@ -1,12 +1,16 @@
+PImage rocketImage;
+
 PVector speed;
 PVector position;
 PVector addSpeed;
+PVector rocketScale;
 
 float thrusterStrength;
 float rotationSpeed;
 float heading;
 float angle;
 float maxSpeed;
+float centerOffset;
 
 float addspeedX;
 float addspeedY;
@@ -14,6 +18,9 @@ float addspeedY;
 boolean up, down, left, right;
 
 void setup() {
+	//load rocket.png image 
+	rocketImage = loadImage("Rocket.png");
+
 	//window size
 	size(1024, 1024);
 	
@@ -21,6 +28,7 @@ void setup() {
 	speed = new PVector(0, 0);
 	position = new PVector(512, 512);
 	addSpeed = new PVector(0, 0);
+	rocketScale = new PVector(25, 50);
 
 	//positional variables
 	thrusterStrength = 0.05;
@@ -28,6 +36,7 @@ void setup() {
 	heading = 0;
 	angle = 0;
 	maxSpeed = 5;
+	centerOffset = 15;
 
 	//input booleans
 	up = down = left = right = false;
@@ -72,7 +81,7 @@ void draw() {
 	speed.y = (float)Math.round(speed.y * 100) / 100;
 	
 	//print for debugging
-	println(speed);
+	//println(speed);
 
 	//apply speed
 	position.x += speed.y;
@@ -85,9 +94,7 @@ void draw() {
 	pushMatrix();
 	translate(position.x, position.y);
 	rotate(radians(angle));
-	rectMode(CENTER);
-	fill(255);
-	rect(0, 0, 50, 100);
+	image(rocketImage, (-rocketScale.x)/2, (-rocketScale.y)/2 - centerOffset, rocketScale.x, rocketScale.y);
 	popMatrix();
 }
 
