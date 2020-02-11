@@ -1,19 +1,3 @@
-import processing.core.*; 
-import processing.data.*; 
-import processing.event.*; 
-import processing.opengl.*; 
-
-import java.util.HashMap; 
-import java.util.ArrayList; 
-import java.io.File; 
-import java.io.BufferedReader; 
-import java.io.PrintWriter; 
-import java.io.InputStream; 
-import java.io.OutputStream; 
-import java.io.IOException; 
-
-public class PlanetaryInteraction extends PApplet {
-
 PVector rocketLocation;
 float rocketAngle;
 float rocketHeading;
@@ -30,10 +14,10 @@ PVector back;
 PVector dirSpeed;
 
 
-public void setup()
+void setup()
 {
-	
-	
+	size(1024, 1024);
+	smooth();
 
 	up = down = left = right = steerLock = false;
 
@@ -45,11 +29,11 @@ public void setup()
 	offsetBase = 50; //used for front and back of rocket calculations
 	minWB = 30;
 	maxWB = 150;
-	turnStrength = 0.1f;
+	turnStrength = 0.1;
 }
 
 
-public void draw()
+void draw()
 {
 	//sets background color
 	background(100, 100, 100);
@@ -112,28 +96,28 @@ public void draw()
 	//up
 	if (up)
 	{ 
-		if (rocketSpeed<maxSpeed) rocketSpeed += 0.05f;
+		if (rocketSpeed<maxSpeed) rocketSpeed += 0.05;
 	}
 
 	//down
 	if (down)
 	{
-		if (rocketSpeed>0) rocketSpeed -= 0.15f; //brake
+		if (rocketSpeed>0) rocketSpeed -= 0.15; //brake
 		else 
-			if (abs(rocketSpeed)<maxSpeed) rocketSpeed -= 0.05f; // reverse
+			if (abs(rocketSpeed)<maxSpeed) rocketSpeed -= 0.05; // reverse
 	}
 
 	//rounds angle
 	if (abs(angle)<turnStrength) angle = 0;
 
-	if (rocketSpeed>0) rocketSpeed -= 0.01f; //friction for forward
-	if (rocketSpeed<0) rocketSpeed += 0.01f; //friction for backward
+	if (rocketSpeed>0) rocketSpeed -= 0.01; //friction for forward
+	if (rocketSpeed<0) rocketSpeed += 0.01; //friction for backward
 
 	//slow down if neither up or down is pressed
-	if ((!up && !down) && (abs(rocketSpeed)<0.01f))  rocketSpeed=0; 
+	if ((!up && !down) && (abs(rocketSpeed)<0.01))  rocketSpeed=0; 
 }
 
-public void keyPressed()
+void keyPressed()
 {
 	if (key == CODED) 
 	{
@@ -154,7 +138,7 @@ public void keyPressed()
 	}
 }
 
-public void keyReleased()
+void keyReleased()
 {
 	if (key == CODED) 
 	{
@@ -173,14 +157,4 @@ public void keyReleased()
 				break;
 		}
 	}
-}
-  public void settings() { 	size(1024, 1024); 	smooth(); }
-  static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "PlanetaryInteraction" };
-    if (passedArgs != null) {
-      PApplet.main(concat(appletArgs, passedArgs));
-    } else {
-      PApplet.main(appletArgs);
-    }
-  }
 }
