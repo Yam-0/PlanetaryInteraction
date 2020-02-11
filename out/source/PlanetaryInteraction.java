@@ -14,13 +14,13 @@ import java.io.IOException;
 
 public class PlanetaryInteraction extends PApplet {
 
-
-float a;
 float fx, fy;
-float b;
+float rotation;
+
+boolean Dkey = false;
+boolean Akey = false;
 
 public void setup() {
-  
   
   fill(255);
   rectMode(CENTER);
@@ -28,12 +28,19 @@ public void setup() {
 
 public void draw() {
   background(0);
+  if(Dkey == true)
+  {
+	  rotation += 0.1f;
+  }
+  if(Akey == true)
+  {
+	  rotation -= 0.1f;
+  }
 
   pushMatrix();
   translate(512, 512);
-  rotate(b); 
+  rotate(rotation); 
   rect(0, 0, 50, 50);
-  b += 0.1f;
   popMatrix();
 }
 public void rectDraw(int r, int s, float c, float d)
@@ -46,7 +53,33 @@ public void rectDraw(int r, int s, float c, float d)
   }
 }
 
-  public void settings() {  size(1024, 1024);  smooth(); }
+public void keyPressed() {
+	switch (key) {
+		case 'd':
+		case 'D':
+			Dkey = true;
+		break;
+		case 'a':
+		case 'A':
+			Akey = true;
+		break;
+	}
+}
+public void keyReleased() {
+	switch (key) {
+		case 'd':
+		case 'D':
+			Dkey = false;
+		break;
+		case 'a':
+		case 'A':
+			Akey = false;
+		break;
+	}
+}
+
+
+  public void settings() {  size(1024, 1024); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PlanetaryInteraction" };
     if (passedArgs != null) {
