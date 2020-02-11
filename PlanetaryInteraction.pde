@@ -1,4 +1,5 @@
 PVector rocketLocation;
+float rocketAngle;
 float rocketHeading;
 float rocketSpeed, maxSpeed;
 float angle;
@@ -10,6 +11,7 @@ boolean plus, minus, up, down, left, right, steerLock;
 
 PVector front;
 PVector back;
+PVector dirSpeed;
 
 
 void setup()
@@ -20,7 +22,7 @@ void setup()
 	up = down = left = right = steerLock = false;
 
 	rocketLocation = new PVector(width/2, height/2);
-	rocketHeading = PI;
+	rocketAngle = PI;
 	rocketSpeed = 0;
 	maxSpeed = 5;
 	angle = 0;
@@ -37,21 +39,21 @@ void draw()
 	background(100, 100, 100);
 
 	//updates front and back pos
-	front =  new PVector(rocketLocation.x+(offsetBase/2)*sin(rocketHeading), rocketLocation.y+(offsetBase/2)*cos(rocketHeading));
-	back =  new PVector(rocketLocation.x-(offsetBase/2)*sin(rocketHeading), rocketLocation.y-(offsetBase/2)*cos(rocketHeading));
+	front =  new PVector(rocketLocation.x+(offsetBase/2)*sin(rocketAngle), rocketLocation.y+(offsetBase/2)*cos(rocketAngle));
+	back =  new PVector(rocketLocation.x-(offsetBase/2)*sin(rocketAngle), rocketLocation.y-(offsetBase/2)*cos(rocketAngle));
 
 	//set rocket pos start
 	pushMatrix();
 	translate(rocketLocation.x, rocketLocation.y);
-	rotate(-rocketHeading);
+	rotate(-rocketAngle);
 	rectMode(CENTER);
 	fill(255);
 	rect(0, 0, 50, 100);
 	popMatrix();
 	//set rocket pos end
 
-	front.add(rocketSpeed*sin(rocketHeading+angle), rocketSpeed*cos(rocketHeading+angle), 0);
-	back.add(rocketSpeed*sin(rocketHeading), rocketSpeed*cos(rocketHeading), 0);
+	front.add(rocketSpeed*sin(rocketAngle+angle), rocketSpeed*cos(rocketAngle+angle), 0);
+	back.add(rocketSpeed*sin(rocketAngle), rocketSpeed*cos(rocketAngle), 0);
 
 	//rounds front and back of rocket to set rocketlocation
 	rocketLocation.set(front.x+back.x, front.y+back.y, 0) ;
@@ -64,7 +66,7 @@ void draw()
 	if (rocketLocation.y>height) rocketLocation.y=0;  
 
 	//Don't touch this please - it does things maf related
-	rocketHeading = atan2( front.x - back.x, front.y - back.y );
+	rocketAngle = atan2( front.x - back.x, front.y - back.y );
 
 	//fill lmao
 	fill(255);
