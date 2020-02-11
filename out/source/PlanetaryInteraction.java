@@ -17,8 +17,12 @@ public class PlanetaryInteraction extends PApplet {
 float fx, fy;
 float rotation;
 
+float boxPosX = 0;
+float boxPosY = 0;
+
 boolean Dkey = false;
 boolean Akey = false;
+boolean Wkey = false;
 
 public void setup() {
   
@@ -36,11 +40,15 @@ public void draw() {
   {
 	  rotation -= 0.1f;
   }
+  if(Wkey == true)
+  {
+	  boxPosY += 5;
+  }
 
   pushMatrix();
   translate(512, 512);
   rotate(rotation); 
-  rect(0, 0, 50, 50);
+  rect(boxPosX, boxPosY, 50, 50);
   popMatrix();
 }
 public void rectDraw(int r, int s, float c, float d)
@@ -63,6 +71,10 @@ public void keyPressed() {
 		case 'A':
 			Akey = true;
 		break;
+		case 'w':
+		case 'W':
+			Wkey = true;
+		break;
 	}
 }
 public void keyReleased() {
@@ -74,6 +86,10 @@ public void keyReleased() {
 		case 'a':
 		case 'A':
 			Akey = false;
+		break;
+		case 'w':
+		case 'W':
+			Wkey = false;
 		break;
 	}
 }

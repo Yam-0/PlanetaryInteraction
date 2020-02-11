@@ -1,8 +1,12 @@
 float fx, fy;
 float rotation;
 
+float boxPosX = 0;
+float boxPosY = 0;
+
 boolean Dkey = false;
 boolean Akey = false;
+boolean Wkey = false;
 
 void setup() {
   size(1024, 1024);
@@ -20,11 +24,15 @@ void draw() {
   {
 	  rotation -= 0.1;
   }
+  if(Wkey == true)
+  {
+	  boxPosY += 5;
+  }
 
   pushMatrix();
   translate(512, 512);
   rotate(rotation); 
-  rect(0, 0, 50, 50);
+  rect(boxPosX, boxPosY, 50, 50);
   popMatrix();
 }
 void rectDraw(int r, int s, float c, float d)
@@ -47,6 +55,10 @@ void keyPressed() {
 		case 'A':
 			Akey = true;
 		break;
+		case 'w':
+		case 'W':
+			Wkey = true;
+		break;
 	}
 }
 void keyReleased() {
@@ -58,6 +70,10 @@ void keyReleased() {
 		case 'a':
 		case 'A':
 			Akey = false;
+		break;
+		case 'w':
+		case 'W':
+			Wkey = false;
 		break;
 	}
 }
