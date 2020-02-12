@@ -16,12 +16,14 @@ public class PlanetaryInteraction extends PApplet {
 
 PImage rocketImage;
 
+PVector offset;
 PVector speed;
 PVector position;
 PVector rocketCenterOfMass;
 PVector addSpeed;
 PVector speedToStar;
 PVector rocketScale;
+PVector tipPosition;
 
 float thrusterStrength;
 float gravityStrength;
@@ -34,20 +36,29 @@ float maxSpeed;
 float centerOffset;
 float playfield;
 
+int ammo;
+int startAmmo;
+
 float addspeedX;
 float addspeedY;
 float speedToStarX;
 float speedToStarY;
 
 boolean up, down, left, right;
+boolean fired;
 boolean debugView;
 
 public void setup() {
+
+	//set start amount of ammo
+	startAmmo = 3;
+
 	//window size
 	
 
 	//set variables
 	reset();
+
 	//don't start in debug mode
 	debugView = false;
 }
@@ -62,6 +73,8 @@ public void reset(){
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
 	speedToStar = new PVector(0, 0);
+	offset = new PVector(0, 0);
+	tipPosition = new PVector(0, 0);
 	
 	//positional variables and other floats
 	distanceToStar = 0;
@@ -75,11 +88,36 @@ public void reset(){
 	angleToStar = 0;
 	playfield = 800;
 
+	//reset to start amount
+	ammo = startAmmo;
+
 	//input booleans
 	up = down = left = right = false;
 }
 
 public void draw() {
+
+	//set tip position vector 2
+	offset = (offsetWithAngle((rocketCenterOfMass), angle, 100));
+	tipPosition.x = (offset.x + position.x);
+	tipPosition.y = (offset.y + position.y);
+
+	//reload if close to star
+	if(distanceToStar <= (playfield/3)/2)
+	{
+		if(ammo != startAmmo)
+		{
+			ammo = startAmmo;
+			if(debugView == true)
+			{
+				println("Reloaded! : " + ammo + " shots left");
+			}
+		}
+	}
+
+	//apply speed
+	position.x += speed.y;
+	position.y -= speed.x;
 
 	//get distance to star
 	distanceToStar = getDistance(position.x, position.y);
@@ -125,8 +163,8 @@ public void draw() {
 	speedToStar.y = (float)Math.round(speedToStarY * 100) / 100;
 
 	//calculate gravity scale
-	gravityStrength = (float)(2 * (100)/(Math.pow(distanceToStar, 1.5f))); //realistic gravity formula
-	//exponentially increases gravity if outside playing field
+	gravityStrength = (float)(2 * (50)/(Math.pow(distanceToStar, 1.4f))); //realistic gravity formula
+	//exponentially increases gravity if outside playing fiel
 	if(distanceToStar > playfield/2){ 
 		gravityStrength = (float)((Math.pow((distanceToStar)-(playfield/2), 1.1f))/1000);
 	}
@@ -157,16 +195,14 @@ public void draw() {
 		speed.y = -maxSpeed;
 	}
 
-	//apply speed
-	position.x += speed.y;
-	position.y -= speed.x;
-
 	//set background color
 	background(0);
 
 	//star and play area
 	fill(5, 5, 5);
 	ellipse(512, 512, playfield, playfield);
+	fill(10, 10, 10);
+	ellipse(512, 512, playfield/3, playfield/3);
 	fill(255, 255, 0);
 	ellipse(512, 512, 25, 25);
 
@@ -178,6 +214,32 @@ public void draw() {
 	popMatrix();
 
 	heading = getAngleXY(speed.x, speed.y);
+
+		//fire event
+	if(fired == true)
+	{
+		if(ammo != 0)
+		{
+			pushMatrix();
+			translate(tipPosition.x, tipPosition.y);
+			rotate(radians(angle - 90));
+			fill(255, 0, 0);
+			rect(0, -1, 1000, 2);
+			popMatrix();
+			ammo--;
+
+			if(debugView == true)
+			{
+				println("Fired! : " + ammo + " shots left");
+			}
+		}
+		else
+		if(debugView == true)
+		{
+			println("Out of ammo : " + ammo);
+		}
+		fired = false;
+	}
 
 	//only show this if in debug view
 	if(debugView)
@@ -232,6 +294,19 @@ public void draw() {
 	}
 }
 
+public PVector offsetWithAngle(PVector source, float angle, float length)
+{
+	PVector lengths = getXYWithAngle(angle - 90);
+	PVector lengthsMult = new PVector((lengths.x * length), (lengths.y * length));
+	return lengthsMult;
+}
+public PVector getXYWithAngle(float angle)
+{
+	PVector vector2 = new PVector(0, 0);
+	vector2.x= (float)Math.cos(radians(angle));
+	vector2.y= (float)Math.sin(radians(angle));
+	return vector2;
+}
 public float getDistance(float x, float y)
 {
 	//pythagorean theorem
@@ -279,6 +354,10 @@ public void keyPressed()
 		{
 			reset();
 		}
+	}
+	if(key == ' ')
+	{
+		fired = true;
 	}
 	if (key == CODED) 
 	{
