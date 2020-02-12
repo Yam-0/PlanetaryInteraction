@@ -19,6 +19,7 @@ float distanceToStar;
 float maxSpeed;
 float centerOffset;
 float playfield;
+float distanceToTip;
 
 int ammo;
 int startAmmo;
@@ -71,6 +72,7 @@ void reset(){
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
+	distanceToTip = 45;
 
 	//reset to start amount
 	ammo = startAmmo;
@@ -82,7 +84,7 @@ void reset(){
 void draw() {
 
 	//set tip position vector 2
-	offset = (offsetWithAngle((rocketCenterOfMass), angle, 100));
+	offset = (offsetWithAngle((rocketCenterOfMass), angle, distanceToTip));
 	tipPosition.x = (offset.x + position.x);
 	tipPosition.y = (offset.y + position.y);
 
@@ -238,7 +240,23 @@ void draw() {
 		pushMatrix();
 		translate(512, 512);
 		rotate(radians(angleToStar));
-		rect(0, -1, 1000, 2);
+		fill(255, 0, 0);
+		rect(0, -1, (playfield/2), 2);
+		popMatrix();
+
+		//ammo region line
+		pushMatrix();
+		translate(512, 512);
+		rotate(radians(angleToStar));
+		if(distanceToStar < ((playfield/3)/2))
+		{
+			fill(0, 255, 0);
+		}
+		else
+		{
+			fill(255, 0, 0);
+		}
+		rect(0, -2, (playfield/6), 4);
 		popMatrix();
 
 		//draw movement direction
@@ -246,6 +264,14 @@ void draw() {
 		translate(rocketCenterOfMass.x, rocketCenterOfMass.y);
 		rotate(radians(heading));
 		fill(0, 0, 255);
+		rect(0, -1, 100, 2);
+		popMatrix();
+
+		//draw angle direction
+		pushMatrix();
+		translate(rocketCenterOfMass.x, rocketCenterOfMass.y);
+		rotate(radians(angle - 90));
+		fill(0, 255, 0);
 		rect(0, -1, 100, 2);
 		popMatrix();
 
@@ -304,7 +330,6 @@ public float getAngleXY(float x, float y)
 	deg -= 90;
 	return deg;
 }
-
 public float getAngle(PVector target, PVector here) {
 
 	//arctan and rad to degrees - to get angle between points
@@ -316,6 +341,13 @@ public float getAngle(PVector target, PVector here) {
 
     return angle;
 }
+
+//checks to see if laser hit
+public boolean hitReg(PVector target)
+{
+	return(false);
+}
+
 //key held down variable updates
 void keyPressed()
 {
