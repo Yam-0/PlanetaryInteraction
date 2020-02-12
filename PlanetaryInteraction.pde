@@ -27,11 +27,18 @@ boolean up, down, left, right;
 boolean debugView;
 
 void setup() {
-	//load rocket.png image 
-	rocketImage = loadImage("Rocket.png");
-
 	//window size
 	size(1024, 1024);
+
+	//set variables
+	reset();
+	//don't start in debug mode
+	debugView = false;
+}
+void reset(){
+	//reset every variable except debug
+	//load rocket.png image 
+	rocketImage = loadImage("Rocket.png");
 	
 	//vector2 variables
 	speed = new PVector(0, 4);
@@ -40,21 +47,20 @@ void setup() {
 	rocketScale = new PVector(25, 50);
 	speedToStar = new PVector(0, 0);
 	
-	//positional variables
+	//positional variables and other floats
 	distanceToStar = 0;
 	thrusterStrength = 0.01;
 	gravityStrength = 0.05;
-	rotationSpeed = 2.5;
+	rotationSpeed = 3;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 5;
+	maxSpeed = 4;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
 
 	//input booleans
 	up = down = left = right = false;
-	debugView = false;
 }
 
 void draw() {
@@ -181,7 +187,32 @@ void draw() {
 		rect(0, -1, 100, 2);
 		popMatrix();
 
-		println("gravityStrength: "+ gravityStrength + " | distanceToStar: "+ distanceToStar + " | " + position);
+		//print some variables for debugging purposes
+		if(keyPressed)
+		{
+			if(key == '\'')
+			{
+				String gravityStrengthRounded = String.format("%.7f", gravityStrength);
+				float distanceToStarRounded = (round(distanceToStar * 100)/100);
+				float positionXRounded = (round(position.x * 100)/100);
+				float positionYRounded = (round(position.y * 100)/100);
+				println(
+					millis() 
+					+ " | Gravity Strength: "
+					+ gravityStrengthRounded
+					+ " | Distance to star: "
+					+ distanceToStarRounded
+					+ " | Current Position: " 
+					+ positionXRounded 
+					+ ", " 
+					+ positionYRounded
+					+ " | Current Speed "
+					+ String.format("%.2f", speed.x)
+					+ ", "
+					+ String.format("%.2f", speed.y)
+				);
+			}
+		}
 	}
 }
 
@@ -316,35 +347,4 @@ void keyReleased()
 				break;
 		}
 	}
-}
-void reset(){
-	//reset every variable except debug
-	//load rocket.png image 
-	rocketImage = loadImage("Rocket.png");
-
-	//window size
-	size(1024, 1024);
-	
-	//vector2 variables
-	speed = new PVector(0, 4);
-	position = new PVector(512, 700);
-	addSpeed = new PVector(0, 0);
-	rocketScale = new PVector(25, 50);
-	speedToStar = new PVector(0, 0);
-	
-	//positional variables
-	distanceToStar = 0;
-	thrusterStrength = 0.01;
-	gravityStrength = 0.05;
-	rotationSpeed = 2.5;
-	heading = 0;
-	angle = 0;
-	maxSpeed = 5;
-	centerOffset = 15;
-	angleToStar = 0;
-	playfield = 800;
-
-	//input booleans
-	up = down = left = right = false;
-	debugView = false;
 }
