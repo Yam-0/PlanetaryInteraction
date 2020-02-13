@@ -23,6 +23,7 @@ float distanceToTip;
 
 int ammo;
 int startAmmo;
+int sceneIndex;
 
 float addspeedX;
 float addspeedY;
@@ -34,6 +35,7 @@ boolean fired;
 boolean debugView;
 
 void setup() {
+	sceneIndex = 0;
 
 	//set start amount of ammo
 	startAmmo = 3;
@@ -63,12 +65,12 @@ void reset(){
 	
 	//positional variables and other floats
 	distanceToStar = 0;
-	thrusterStrength = 0.01;
+	thrusterStrength = 0.02;
 	gravityStrength = 0.05;
 	rotationSpeed = 3;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 4;
+	maxSpeed = 6;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
@@ -83,6 +85,128 @@ void reset(){
 
 void draw() {
 
+	//makes sure to never stroke
+	noStroke();
+
+	//decides which scene to draw based on the current scene index
+	switch(sceneIndex)
+	{
+	case 0:
+		StartScreen();
+		break;
+
+	case 1:	
+		Menu();
+		break;
+
+	case 2:
+		SinglePlayer();
+		break;
+	}
+}
+//-----------------------------------------------------------------------
+//these are some useful math functions
+public PVector offsetWithAngle(PVector source, float angle, float length)
+{
+	PVector lengths = getXYWithAngle(angle - 90);
+	PVector lengthsMult = new PVector((lengths.x * length), (lengths.y * length));
+	return lengthsMult;
+}
+public PVector getXYWithAngle(float angle)
+{
+	PVector vector2 = new PVector(0, 0);
+	vector2.x= (float)Math.cos(radians(angle));
+	vector2.y= (float)Math.sin(radians(angle));
+	return vector2;
+}
+public float getDistance(float x, float y)
+{
+	//pythagorean theorem
+	float distance = (float)(Math.sqrt(Math.pow((x - 512), 2) + Math.pow((y - 512), 2)));
+	return distance;
+}
+public float getAngleXY(float x, float y)
+{
+	//arctan and rad to degrees - to get angle with x and y
+    float deg = (float)(Math.atan2(y, x)*180.0/Math.PI);
+	deg -= 90;
+	return deg;
+}
+public float getAngle(PVector target, PVector here) {
+
+	//arctan and rad to degrees - to get angle between points
+    float angle = (float) Math.toDegrees(Math.atan2(target.y - here.x, target.x - here.y));
+
+    if(angle < 0){
+        angle += 360;
+    }
+
+    return angle;
+}
+//-----------------------------------------------------------------------
+
+//checks to see if laser hit
+public boolean hitReg(PVector target)
+{
+	return(false);
+}
+
+void StartScreen()
+{
+	//draws background
+	background(255, 255, 255);
+	fill(200, 200, 200);
+	rect(212, 0, 600, 1024);
+
+	//header
+	fill(150, 150, 150);
+	textAlign(CENTER);
+	textSize(44);
+	text("PLANETARY INTERACTION", 512, 512);
+	
+	//"click to continue" text
+	//mouse hover effect
+	if(mouseY > 770 && mouseY < 800 && mouseX < 612 && mouseX > 412)
+	{
+		fill(250, 250, 250);
+		if(mousePressed){
+			sceneIndex++;
+		}
+	}
+	else 
+	{
+		fill(150, 150, 150);
+	}
+
+	textAlign(CENTER);
+	textSize(22);
+	text("Click to continue", 512, 800);
+
+	//debug mode tools
+	if(debugView)
+	{
+		//draws mousepos X
+		fill(255, 0, 0);
+		textAlign(LEFT);
+		textSize(12);
+		text("MouseX : " + mouseX, 10, 40);
+
+		//draws mousepos Y 
+		fill(255, 0, 0);
+		textAlign(LEFT);
+		textSize(12);
+		text("MouseY : " + mouseY, 10, 20);
+	}
+}
+void Menu()
+{
+	background(0);
+	if(keyPressed){
+		sceneIndex = 2;
+	}
+}
+void SinglePlayer()
+{
 	//set tip position vector 2
 	offset = (offsetWithAngle((rocketCenterOfMass), angle, distanceToTip));
 	tipPosition.x = (offset.x + position.x);
@@ -185,9 +309,9 @@ void draw() {
 	background(0);
 
 	//star and play area
-	fill(5, 5, 5);
+	fill(15, 15, 15);
 	ellipse(512, 512, playfield, playfield);
-	fill(10, 10, 10);
+	fill(25, 25, 25);
 	ellipse(512, 512, playfield/3, playfield/3);
 	fill(255, 255, 0);
 	ellipse(512, 512, 25, 25);
@@ -210,7 +334,7 @@ void draw() {
 			translate(tipPosition.x, tipPosition.y);
 			rotate(radians(angle - 90));
 			fill(255, 0, 0);
-			rect(0, -1, 1000, 2);
+			rect(0, -2, 1000, 4);
 			popMatrix();
 			ammo--;
 
@@ -304,51 +428,7 @@ void draw() {
 	}
 }
 
-public PVector offsetWithAngle(PVector source, float angle, float length)
-{
-	PVector lengths = getXYWithAngle(angle - 90);
-	PVector lengthsMult = new PVector((lengths.x * length), (lengths.y * length));
-	return lengthsMult;
-}
-public PVector getXYWithAngle(float angle)
-{
-	PVector vector2 = new PVector(0, 0);
-	vector2.x= (float)Math.cos(radians(angle));
-	vector2.y= (float)Math.sin(radians(angle));
-	return vector2;
-}
-public float getDistance(float x, float y)
-{
-	//pythagorean theorem
-	float distance = (float)(Math.sqrt(Math.pow((x - 512), 2) + Math.pow((y - 512), 2)));
-	return distance;
-}
-public float getAngleXY(float x, float y)
-{
-	//arctan and rad to degrees - to get angle with x and y
-    float deg = (float)(Math.atan2(y, x)*180.0/Math.PI);
-	deg -= 90;
-	return deg;
-}
-public float getAngle(PVector target, PVector here) {
-
-	//arctan and rad to degrees - to get angle between points
-    float angle = (float) Math.toDegrees(Math.atan2(target.y - here.x, target.x - here.y));
-
-    if(angle < 0){
-        angle += 360;
-    }
-
-    return angle;
-}
-
-//checks to see if laser hit
-public boolean hitReg(PVector target)
-{
-	return(false);
-}
-
-//key held down variable updates
+//Toggle key held variables
 void keyPressed()
 {
 	//turn on/off debug mode
@@ -356,10 +436,12 @@ void keyPressed()
 	{
 		if(debugView == false)
 		{
+			println("Debug mode turned on!");
 			debugView = true;
 		}
 		else 
 		{
+			println("Debug mode turned off!");
 			debugView = false;
 		}
 	}
@@ -416,6 +498,7 @@ void keyPressed()
 	}
 }
 
+//update key held variables
 void keyReleased()
 {
 	if (key == CODED) 
