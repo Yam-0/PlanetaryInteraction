@@ -81,12 +81,12 @@ public void reset(){
 	
 	//positional variables and other floats
 	distanceToStar = 0;
-	thrusterStrength = 0.02f;
+	thrusterStrength = 0.016f;
 	gravityStrength = 0.05f;
 	rotationSpeed = 3;
 	heading = 0;
 	angle = 0;
-	maxSpeed = 6;
+	maxSpeed = 5.5f;
 	centerOffset = 15;
 	angleToStar = 0;
 	playfield = 800;
@@ -117,6 +117,10 @@ public void draw() {
 
 	case 2:
 		SinglePlayer();
+		break;
+
+	case 3:
+		SinglePlayerLostScreen();
 		break;
 	}
 }
@@ -162,7 +166,7 @@ public float getAngle(PVector target, PVector here) {
 //-----------------------------------------------------------------------
 
 //checks to see if laser hit
-public boolean hitReg(PVector target)
+public boolean hitReg(PVector target, PVector source)
 {
 	return(false);
 }
@@ -249,7 +253,7 @@ public void SinglePlayer()
 	distanceToStar = getDistance(position.x, position.y);
 	if(distanceToStar <= 5)
 	{
-		reset();
+		sceneIndex = 3;
 		return;
 	}
 
@@ -324,7 +328,7 @@ public void SinglePlayer()
 	//set background color
 	background(0);
 
-	//star and play area
+	//star reload area, and play area
 	fill(15, 15, 15);
 	ellipse(512, 512, playfield, playfield);
 	fill(25, 25, 25);
@@ -370,6 +374,13 @@ public void SinglePlayer()
 	//only show this if in debug view
 	if(debugView)
 	{
+		//draw trejectory
+		noFill();
+		stroke(255, 255, 255);
+		strokeWeight(2);
+		ellipse(512, 512, distanceToStar*2, distanceToStar*2);
+		noStroke();
+
 		//show center off mass
 		fill(255, 0, 0);
 		ellipse(rocketCenterOfMass.x, rocketCenterOfMass.y, 10, 10);
@@ -441,6 +452,19 @@ public void SinglePlayer()
 				);
 			}
 		}
+	}
+}
+public void SinglePlayerLostScreen()
+{
+	background(255, 0, 0);
+	textSize(50);
+	fill(255, 255, 255);
+	textAlign(CENTER);
+	text("You died!", 512, 512);
+	if(mousePressed || keyPressed) 
+	{
+		reset();
+		sceneIndex = 2;
 	}
 }
 
