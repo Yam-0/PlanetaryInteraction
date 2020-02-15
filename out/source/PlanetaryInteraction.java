@@ -43,6 +43,11 @@ int ammo;
 int startAmmo;
 int sceneIndex;
 int astroidSpawnFrames;
+int score;
+int lives;
+int highscore;
+
+String[] highscores;
 
 float addspeedX;
 float addspeedY;
@@ -53,6 +58,8 @@ boolean up, down, left, right;
 boolean fired;
 boolean debugView;
 boolean infiniteAmmo = false;
+boolean enteredAmmoZone;
+boolean fetched;
 
 public void setup() {
 	sceneIndex = 0;
@@ -83,6 +90,8 @@ public void reset(){
 	offset = new PVector(0, 0);
 	tipPosition = new PVector(0, 0);
 	
+	ArrayList <Asteroid> asteroids = new ArrayList <Asteroid>();
+
 	//positional variables and other floats
 	distanceToStar = 0;
 	thrusterStrength = 0.016f;
@@ -96,11 +105,17 @@ public void reset(){
 	playfield = 800;
 	distanceToTip = 45;
 
+	//integers
+	score = 0;
+	lives = 3;
+
 	//reset to start amount
 	ammo = startAmmo;
 
 	//input booleans
 	up = down = left = right = false;
+	enteredAmmoZone = false;
+	fetched = false;
 }
 
 public void draw() {
@@ -225,14 +240,20 @@ public void InstructionsForSinglePlayer()
 }
 public void SinglePlayer()
 {
+	if(lives <= 0)
+	{
+		sceneIndex = 3;
+	}
+
 	//set tip position vector 2
 	offset = (offsetWithAngle((rocketCenterOfMass), angle, distanceToTip));
 	tipPosition.x = (offset.x + position.x);
 	tipPosition.y = (offset.y + position.y);
 
 	//reload if close to star
-	if(distanceToStar <= (playfield/3)/2)
+	if(distanceToStar <= (playfield/3)/2 && enteredAmmoZone == false)
 	{
+		enteredAmmoZone = true;
 		if(ammo != startAmmo)
 		{
 			ammo = startAmmo;
@@ -241,6 +262,10 @@ public void SinglePlayer()
 				println("Reloaded! : " + ammo + " shots left");
 			}
 		}
+	}
+	if(distanceToStar >= (playfield/3)/2 && enteredAmmoZone == true)
+	{
+		enteredAmmoZone = false;
 	}
 
 	//apply speed
@@ -259,7 +284,7 @@ public void SinglePlayer()
 	if(right == true) angle += rotationSpeed;
 	if(left == true) angle -= rotationSpeed;
 
-		//Make sure angle is within grad range;
+	//Make sure angle is within grad range;
 	while(angle < 0)
 	{
 		angle += 360;
@@ -490,6 +515,20 @@ public void SinglePlayer()
 			}
 		}
 	}
+
+
+// Heads Up Display:
+	//Score text
+	textAlign(LEFT);
+	textSize(44);
+	fill(255, 255, 255);
+	text("Score : " + score, 20, 60);
+
+	//lives text
+	text("Lives : " + lives, 20, 100);
+
+	//ammo text
+	text("Ammo : " + ammo, 20, 1000);
 }
 public void SinglePlayerLostScreen()
 {
@@ -497,11 +536,63 @@ public void SinglePlayerLostScreen()
 	textSize(50);
 	fill(255, 255, 255);
 	textAlign(CENTER);
-	text("You died!", 512, 512);
-	if(mousePressed || keyPressed) 
+	text("Game Over!", 512, 512);
+	//mouse hover effect
+	if(mouseY > 770 && mouseY < 800 && mouseX < 612 && mouseX > 412)
 	{
-		reset();
-		sceneIndex = 2;
+		fill(255, 255, 0);
+		if(mousePressed){
+			reset();
+			sceneIndex = 2;
+		}
+	}
+	else 
+	{
+		fill(255, 255, 255);
+	}
+
+	textAlign(CENTER);
+	textSize(22);
+	text("Click to retry", 512, 800);
+
+	fill(255, 255, 255);
+	textSize(36);
+	text("Score : " + score, 512, 600);
+
+	//Highscore
+	//only fetch highscore once
+	if(fetched != true)
+	{
+		highscores = loadStrings("highscore.txt");
+		highscore = Integer.parseInt(highscores[0]);
+		println(highscore);
+
+		fetched = true;
+	}
+	if(score > highscore)
+	{
+		highscore = score;
+		highscores[0] = str(highscore);
+		saveStrings("highscore.txt", highscores);
+	}
+
+
+	text("Highscore : " + highscore, 512, 650);
+
+	//debug mode tools
+	if(debugView)
+	{
+		//draws mousepos X
+		fill(255, 255, 255);
+		textAlign(LEFT);
+		textSize(12);
+		text("MouseX : " + mouseX, 10, 40);
+
+		//draws mousepos Y 
+		fill(255, 255, 255);
+		textAlign(LEFT);
+		textSize(12);
+		text("MouseY : " + mouseY, 10, 20);
 	}
 }
 
@@ -530,7 +621,7 @@ class Asteroid {
 	public void display()
 	{
 		if(init)
-		{
+		{	
 			asteroidOffset.x = (astroidGravity * sin(asteroidRotation));
 			asteroidOffset.y = (astroidGravity * cos(asteroidRotation));
 
@@ -538,9 +629,10 @@ class Asteroid {
 			asteroidPos.y = asteroidSpawnPos.y + asteroidOffset.y + 512;
 
 			asteroidDistToStar = getDistance(asteroidPos.x, asteroidPos.y);
-			if( asteroidDistToStar <= 5)
+			if(asteroidDistToStar <= 5 && alive == true)
 			{
 				alive = false;
+				lives--;
 			}
 
 			pushMatrix();
@@ -614,6 +706,7 @@ class Asteroid {
 					//kill astroid if hit
 					if(angle > minAngle && angle < maxAngle)
 					{
+						score++;
 						alive = false;
 					}
 				}
