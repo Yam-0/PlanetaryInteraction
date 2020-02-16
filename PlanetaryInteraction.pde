@@ -26,7 +26,7 @@ float distanceToTip;
 int ammo;
 int startAmmo;
 int sceneIndex;
-int astroidSpawnFrames;
+int asteroidspawnFrames;
 int score;
 int lives;
 int highscore;
@@ -39,6 +39,7 @@ float speedToStarX;
 float speedToStarY;
 
 boolean up, down, left, right;
+boolean spawnasteroids;
 boolean fired;
 boolean debugView;
 boolean infiniteAmmo = false;
@@ -73,8 +74,6 @@ void reset(){
 	speedToStar = new PVector(0, 0);
 	offset = new PVector(0, 0);
 	tipPosition = new PVector(0, 0);
-	
-	ArrayList <Asteroid> asteroids = new ArrayList <Asteroid>();
 
 	//positional variables and other floats
 	distanceToStar = 0;
@@ -92,11 +91,13 @@ void reset(){
 	//integers
 	score = 0;
 	lives = 3;
+	asteroidspawnFrames = 0;
 
 	//reset to start amount
 	ammo = startAmmo;
 
 	//input booleans
+	spawnasteroids = true;
 	up = down = left = right = false;
 	enteredAmmoZone = false;
 	fetched = false;
@@ -224,7 +225,7 @@ void InstructionsForSinglePlayer()
 }
 void SinglePlayer()
 {
-	if(lives <= 0)
+	if(lives <= 0 && debugView == false)
 	{
 		sceneIndex = 3;
 	}
@@ -368,19 +369,29 @@ void SinglePlayer()
 
 	heading = getAngleXY(speed.x, speed.y);
 
-	if(astroidSpawnFrames >= 300)
+	if(asteroidspawnFrames >= 300)
 	{
-		asteroids.add(new Asteroid());
-		astroidSpawnFrames = 0;
+		if(spawnasteroids == true)
+		{
+			asteroids.add(new Asteroid());
+			asteroidspawnFrames = 0;
+		}
 	}
 	else
 	{
 		if(sceneIndex == 2)
 		{
-			astroidSpawnFrames++;
+			asteroidspawnFrames++;
 		}
 	}
 
+	//Laser sight
+	pushMatrix();
+	translate(tipPosition.x, tipPosition.y);
+	rotate(radians(angle - 90));
+	fill(255, 255, 255);
+	rect(0, -0.05/2, 2048, 0.05);
+	popMatrix();
 
 	//fire event
 	if(fired == true)
@@ -391,7 +402,7 @@ void SinglePlayer()
 			translate(tipPosition.x, tipPosition.y);
 			rotate(radians(angle - 90));
 			fill(255, 0, 0);
-			rect(0, -2, 1000, 4);
+			rect(0, -2, 2048, 4);
 			popMatrix();
 
 			//don't decrease ammo if in infinite ammo mode
@@ -588,26 +599,26 @@ class Asteroid {
 	PVector delta;
 	
 	float startRotPos;//rotation around star to spawn at
-	float spawnDist = 400;
+	float spawnDist = 800;
 	float asteroidRotation;
-	float astroidGravity = 1;
+	float asteroidGravity = 1;
 	float fallSpeed = 5;
 	float asteroidSize;
 	float asteroidDistToStar;
 	float rocketToAsteroidDistance;
 	float hitboxEdgeDist;
 	float deltaAngle;
-	float rocketToAstroidAngle;
+	float rocketToAsteroidAngle;
 
 	boolean init = false; //boolean to check if class object spawned this frame
-	boolean alive = true;
+	boolean alive = false;
 
 	void display()
 	{
 		if(init)
 		{	
-			asteroidOffset.x = (astroidGravity * sin(asteroidRotation));
-			asteroidOffset.y = (astroidGravity * cos(asteroidRotation));
+			asteroidOffset.x = (asteroidGravity * sin(asteroidRotation));
+			asteroidOffset.y = (asteroidGravity * cos(asteroidRotation));
 
 			asteroidPos.x = asteroidSpawnPos.x + asteroidOffset.x + 512;
 			asteroidPos.y = asteroidSpawnPos.y + asteroidOffset.y + 512;
@@ -616,7 +627,10 @@ class Asteroid {
 			if(asteroidDistToStar <= 5 && alive == true)
 			{
 				alive = false;
-				lives--;
+				if(!debugView)
+				{
+					lives--;
+				}
 			}
 
 			pushMatrix();
@@ -632,7 +646,28 @@ class Asteroid {
 			popMatrix();
 
 			rectMode(LEFT);//reset rectMode
-			astroidGravity -= asteroidSize/5 - asteroidSize/6;
+			asteroidGravity -= asteroidSize/5 - asteroidSize/6;
+
+			//trigonemetry math to calculate distance to astroid from rocket
+			float deltaX = asteroidPos.x - position.x;
+			float deltaY = asteroidPos.y - position.y;
+
+			deltaX = (float)Math.pow(deltaX, 2);
+			deltaY = (float)Math.pow(deltaY, 2);
+			float diagonalSquared = deltaX + deltaY;
+
+			rocketToAsteroidDistance = (float)Math.sqrt(diagonalSquared);
+
+			//collision with astroid
+			if(rocketToAsteroidDistance <= asteroidSize/2 && alive == true)
+			{
+				alive = false; //disable astroid
+				if(!debugView)
+				{
+					lives--; 
+				}
+			}
+
 
 			//hit reg - check if player hit astroid with laser
 			if(fired && alive == true)
@@ -640,27 +675,18 @@ class Asteroid {
 				//only do hit detection if you have ammo to shoot
 				if(infiniteAmmo || ammo != 0)
 				{
-					float angleToRocket = (getAngle(asteroidPos, position));
-
-					float deltaX = asteroidPos.x - position.x;
-					float deltaY = asteroidPos.y - position.y;
-
-					deltaX = (float)Math.pow(deltaX, 2);
-					deltaY = (float)Math.pow(deltaY, 2);
-					float diagonalSquared = deltaX + deltaY;
-
-					rocketToAsteroidDistance = (float)Math.sqrt(diagonalSquared);				
+					float angleToRocket = (getAngle(asteroidPos, position));			
 					
 					deltaAngle = (float)Math.atan((asteroidSize/2)/(rocketToAsteroidDistance));
 					deltaAngle = (degrees(deltaAngle)); //convert to degrees
 
 					deltaX = position.x - asteroidPos.x;
 					deltaY = position.y - asteroidPos.y;
-					rocketToAstroidAngle = getAngleXY(deltaX, deltaY);
+					rocketToAsteroidAngle = getAngleXY(deltaX, deltaY);
 
 					//set max angles to be able check if hit astroid
-					float maxAngle = rocketToAstroidAngle + deltaAngle;
-					float minAngle = rocketToAstroidAngle - deltaAngle;
+					float maxAngle = rocketToAsteroidAngle + deltaAngle;
+					float minAngle = rocketToAsteroidAngle - deltaAngle;
 
 					//make sure max and min angle are within degree range
 					while(maxAngle < 0) 
@@ -684,20 +710,25 @@ class Asteroid {
 					//print hitreg data if in debugview
 					if(debugView)
 					{
-						println(minAngle + ", " + rocketToAstroidAngle + ", " + maxAngle + " | " + angle);
+						println(minAngle + ", " + rocketToAsteroidAngle + ", " + maxAngle + " | " + angle);
 					}
 
 					//kill astroid if hit
 					if(angle > minAngle && angle < maxAngle)
 					{
-						score++;
+						if(!debugView)
+						{
+							score++;
+						}
 						alive = false;
 					}
 				}
 			}			
 		}
 		else
-		{
+		{	//only do this once when the astroid spawns
+			alive = true;
+
 			asteroidSize = random(30, 60);
 			startRotPos = random(0, 360);
 			asteroidRotation = startRotPos;
@@ -706,6 +737,7 @@ class Asteroid {
 			asteroidSpawnPos = new PVector(spawnDist * sin(startRotPos), spawnDist * cos(startRotPos));
 			asteroidPos = new PVector((asteroidSpawnPos.x + asteroidOffset.x), (asteroidSpawnPos.y + asteroidOffset.y));
 
+			//makes sure this only happens once
 			init = true;
 		}
 	}
@@ -726,6 +758,8 @@ void keyPressed()
 		{
 			println("Debug mode turned off!");
 			debugView = false;
+			infiniteAmmo = false;
+			spawnasteroids = true;
 		}
 	}
 	//reset button for debug mode
@@ -747,7 +781,7 @@ void keyPressed()
 			println("Spawned asteroid!");
 		}
 	}
-	if(key == 'z')
+	if(key == 'z' && debugView == true)
 	{
 		if(infiniteAmmo == false)
 		{
@@ -758,6 +792,19 @@ void keyPressed()
 		{
 			println("Infinite ammo turned off!");
 			infiniteAmmo = false;
+		}
+	}
+		if(key == 'x' && debugView == true)
+	{
+		if(spawnasteroids == false)
+		{
+			println("Astroid spawning turned on!");
+			spawnasteroids = true;
+		}
+		else 
+		{
+			println("Astroid spawning turned off!");
+			spawnasteroids = false;
 		}
 	}
 	if (key == CODED) 
