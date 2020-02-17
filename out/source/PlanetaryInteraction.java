@@ -20,6 +20,11 @@ public class PlanetaryInteraction extends PApplet {
 Sound s;
 
 PImage rocketImage;
+PImage asteroid1;
+PImage parallax1;
+PImage parallax2;
+PImage parallax3;
+PImage parallax4;
 
 PVector offset;
 PVector speed;
@@ -44,6 +49,8 @@ float maxSpeed;
 float centerOffset;
 float playfield;
 float distanceToTip;
+
+float middle;
 
 int ammo;
 int startAmmo;
@@ -74,7 +81,7 @@ boolean frameSwitch;
 SoundFile hitSound;
 SoundFile laserSound;
 SoundFile pickupSound;
-SoundFile menu;
+SoundFile menuMusic;
 SoundFile main;
 SoundFile crystal;
 SoundFile asteroidHitSound;
@@ -82,18 +89,33 @@ SoundFile rocketThrustSound;
 
 public void setup() 
 {
+	//window size
+	
+	middle = 1024/2;
+
 	thread("loading");
 
-	//import audio from data folder
+	//import sound effects from data folder
 	hitSound = new SoundFile(this, "Hit.wav");
   	laserSound = new SoundFile(this, "Laser.wav");
 	pickupSound = new SoundFile(this, "Pickup.wav");
 	asteroidHitSound = new SoundFile(this, "AsteroidDestroy.wav");
 	rocketThrustSound = new SoundFile(this, "Rocket.wav");
 
-	menu = new SoundFile(this, "Menu.wav");
+	//load music files
+	menuMusic = new SoundFile(this, "Menu.wav");
 	main = new SoundFile(this, "Main.wav");
 	crystal = new SoundFile(this, "crystal.mp3");
+
+	//load images
+	rocketImage = loadImage("Rocket.png");
+
+	parallax1 = loadImage("Parallax1.png");
+	parallax2 = loadImage("Parallax2.png");
+	parallax3 = loadImage("Parallax3.png");
+	parallax4 = loadImage("Parallax4.png");
+
+	asteroid1 = loadImage("Asteroid1.png");
 
 	//defines start scene
 	sceneIndex = 0;
@@ -103,9 +125,6 @@ public void setup()
 
 	//set start amount of ammo
 	startAmmo = 3;
-
-	//window size
-	
 
 	//set variables
 	reset();
@@ -118,17 +137,15 @@ public void loading()
 	background(0);
 	textAlign(CENTER);
 	textSize(44);
-	text("Loading", 512, 512);
+	text("Loading", middle, middle);
 }
 public void reset()
 {
 	//reset every variable except debug
-	//load rocket.png image 
-	rocketImage = loadImage("Rocket.png");
 	
 	//vector2 variables
 	speed = new PVector(0, 4);
-	position = new PVector(512, 700);
+	position = new PVector(middle, 700);
 	addSpeed = new PVector(0, 0);
 	rocketScale = new PVector(25, 50);
 	speedToStar = new PVector(0, 0);
@@ -207,7 +224,7 @@ public PVector getXYWithAngle(float angle)
 public float getDistance(float x, float y)
 {
 	//pythagorean theorem
-	float distance = (float)(Math.sqrt(Math.pow((x - 512), 2) + Math.pow((y - 512), 2)));
+	float distance = (float)(Math.sqrt(Math.pow((x - middle), 2) + Math.pow((y - middle), 2)));
 	return distance;
 }
 public float getAngleXY(float x, float y)
@@ -233,21 +250,31 @@ public float getAngle(PVector target, PVector here) {
 public void StartScreen()
 {
 	//loop music
-	if(menu.isPlaying() != true)
+	if(menuMusic.isPlaying() != true)
 	{
-		menu.play();
+		menuMusic.play();
 	}
 
+
 	//draws background
-	background(255, 255, 255);
-	fill(200, 200, 200);
-	rect(212, 0, 600, 1024);
+	background(0);
+
+	imageMode(CORNER);
+	image(parallax4, 0 + (mouseX/24 - middle), 0 + (mouseY/24 - middle));
+	image(parallax3, 0 + (mouseX/12 - middle), 0 + (mouseY/12 - middle));
+	image(parallax2, 0 + (mouseX/8 - middle), 0 + (mouseY/8 - middle));
+	image(parallax1, 0 + (mouseX/4 - middle), 0 + (mouseY/4 - middle));
+
+	//header backdrop
+	fill(0);
+	rectMode(CENTER);
+	rect(middle, 500, 600, 100);
 
 	//header
-	fill(150, 150, 150);
+	fill(255, 255, 255);
 	textAlign(CENTER);
 	textSize(44);
-	text("PLANETARY INTERACTION", 512, 512);
+	text("PLANETARY INTERACTION", middle, middle);
 	
 	//"click to continue" text
 	//mouse hover effect
@@ -265,7 +292,7 @@ public void StartScreen()
 
 	textAlign(CENTER);
 	textSize(22);
-	text("Click to continue", 512, 800);
+	text("Click to continue", middle, 800);
 
 	//debug mode tools
 	if(debugView)
@@ -286,12 +313,19 @@ public void StartScreen()
 public void InstructionsForSinglePlayer()
 {
 	//loop music
-	if(menu.isPlaying() != true)
+	if(menuMusic.isPlaying() != true)
 	{
-		menu.play();
+		menuMusic.play();
 	}
 
+	//background black
 	background(0);
+
+	textAlign(LEFT);
+	textSize(24);
+	text("These are some basic instructions for my game", 10, 40);
+
+
 	if(keyPressed){
 		sceneIndex = 2;
 	}
@@ -299,7 +333,7 @@ public void InstructionsForSinglePlayer()
 public void SinglePlayer()
 {
 	//change and loop other music file
-	if(menu.isPlaying() == false && main.isPlaying() == false && crystal.isPlaying() == false)
+	if(menuMusic.isPlaying() == false && main.isPlaying() == false && crystal.isPlaying() == false)
 	{
 		main.play();
 	}
@@ -394,7 +428,7 @@ public void SinglePlayer()
 	//get vector2 speeds towards star
 	//get angle to star
 	rocketCenterOfMass = new PVector(position.x, position.y);
-	angleToStar = getAngle(rocketCenterOfMass, new PVector(512, 512));
+	angleToStar = getAngle(rocketCenterOfMass, new PVector(middle, middle));
 	float angleToStarOffset = angleToStar - 90;
 	//println("angleToStar: "+ angleToStar);
 
@@ -444,11 +478,11 @@ public void SinglePlayer()
 
 	//star reload area, and play area
 	fill(15, 15, 15);
-	ellipse(512, 512, playfield, playfield);
+	ellipse(middle, middle, playfield, playfield);
 	fill(25, 25, 25);
-	ellipse(512, 512, playfield/3, playfield/3);
+	ellipse(middle, middle, playfield/3, playfield/3);
 	fill(255, 255, 0);
-	ellipse(512, 512, 25, 25);
+	ellipse(middle, middle, 25, 25);
 
 	if(up == true)
 	{
@@ -497,6 +531,7 @@ public void SinglePlayer()
 	translate(tipPosition.x, tipPosition.y);
 	rotate(radians(angle - 90));
 	fill(255, 255, 255);
+	rectMode(LEFT);
 	rect(0, -0.05f/2, 2048, 0.05f);
 	popMatrix();
 
@@ -543,7 +578,7 @@ public void SinglePlayer()
 		noFill();
 		stroke(255, 255, 255);
 		strokeWeight(2);
-		ellipse(512, 512, distanceToStar*2, distanceToStar*2);
+		ellipse(middle, middle, distanceToStar*2, distanceToStar*2);
 		noStroke();
 
 		//show center off mass
@@ -554,7 +589,7 @@ public void SinglePlayer()
 		
 		//draw line to star
 		pushMatrix();
-		translate(512, 512);
+		translate(middle, middle);
 		rotate(radians(angleToStar));
 		fill(255, 0, 0);
 		rect(0, -1, (playfield/2), 2);
@@ -562,7 +597,7 @@ public void SinglePlayer()
 
 		//ammo region line
 		pushMatrix();
-		translate(512, 512);
+		translate(middle, middle);
 		rotate(radians(angleToStar));
 		if(distanceToStar < ((playfield/3)/2))
 		{
@@ -666,7 +701,7 @@ public void SinglePlayerLostScreen()
 		}
 		textSize(200);
 		textAlign(CENTER);
-		text("DU SUGER!", 512, 512);
+		text("DU SUGER!", middle, middle);
 	}
 	if(debugView == false)
 	{
@@ -677,7 +712,7 @@ public void SinglePlayerLostScreen()
 	textSize(50);
 	fill(255, 255, 255);
 	textAlign(CENTER);
-	text("Game Over!", 512, 512);
+	text("Game Over!", middle, middle);
 	//mouse hover effect
 	if(mouseY > 770 && mouseY < 800 && mouseX < 612 && mouseX > 412)
 	{
@@ -694,11 +729,11 @@ public void SinglePlayerLostScreen()
 
 	textAlign(CENTER);
 	textSize(22);
-	text("Click to retry", 512, 800);
+	text("Click to retry", middle, 800);
 
 	fill(255, 255, 255);
 	textSize(36);
-	text("Score : " + score, 512, 600);
+	text("Score : " + score, middle, 600);
 
 	//Highscore
 	//only fetch highscore once
@@ -718,7 +753,7 @@ public void SinglePlayerLostScreen()
 	}
 
 
-	text("Highscore : " + highscore, 512, 650);
+	text("Highscore : " + highscore, middle, 650);
 
 	//debug mode tools
 	if(debugView)
@@ -746,7 +781,8 @@ class Asteroid {
 	
 	float startRotPos;//rotation around star to spawn at
 	float spawnDist = 800;
-	float asteroidRotation;
+	float asteroidRotationInit;
+	float asteroidRotation = 0;
 	float asteroidGravity = 1;
 	float fallSpeed = 5;
 	float asteroidSize;
@@ -755,7 +791,9 @@ class Asteroid {
 	float hitboxEdgeDist;
 	float deltaAngle;
 	float rocketToAsteroidAngle;
+	float asteroidRotationSpeed;
 
+	boolean rotationDir;
 	boolean init = false; //boolean to check if class object spawned this frame
 	boolean alive = true;
 
@@ -763,11 +801,14 @@ class Asteroid {
 	{
 		if(init)
 		{	
-			asteroidOffset.x = (asteroidGravity * sin(asteroidRotation));
-			asteroidOffset.y = (asteroidGravity * cos(asteroidRotation));
+			asteroidOffset.x = (asteroidGravity * sin(asteroidRotationInit));
+			asteroidOffset.y = (asteroidGravity * cos(asteroidRotationInit));
 
-			asteroidPos.x = asteroidSpawnPos.x + asteroidOffset.x + 512;
-			asteroidPos.y = asteroidSpawnPos.y + asteroidOffset.y + 512;
+			asteroidPos.x = asteroidSpawnPos.x + middle;
+			asteroidPos.y = asteroidSpawnPos.y + middle;
+
+			asteroidPos.x += asteroidOffset.x;
+			asteroidPos.y += asteroidOffset.y;
 
 			asteroidDistToStar = getDistance(asteroidPos.x, asteroidPos.y);
 			if(asteroidDistToStar <= 5 && alive == true)
@@ -780,18 +821,20 @@ class Asteroid {
 				}
 			}
 
+			asteroidRotation += asteroidRotationSpeed;
+
+			
 			pushMatrix();
-			rectMode(CENTER);
+			imageMode(CENTER);
 			translate(asteroidPos.x, asteroidPos.y);
-			rotate(radians(asteroidRotation));
 			fill(255, 255, 255);
 			if(alive)
 			{
-				ellipse(0, 0, asteroidSize, asteroidSize);
+				rotate(radians(asteroidRotation));
+				image(asteroid1, 0, 0, asteroidSize, asteroidSize);
 			}
-
 			popMatrix();
-			
+				
 
 			rectMode(LEFT);//reset rectMode
 			asteroidGravity -= asteroidSize/5 - asteroidSize/6;
@@ -879,10 +922,24 @@ class Asteroid {
 		else
 		{	//only do this once when the astroid spawns
 			asteroidSize = random(30, 60);
+			if((-1 + (int)random(2) * 2) == 1)
+			{
+				rotationDir = true;
+			}
+			else
+			{
+				rotationDir = false;
+			}
+			asteroidRotationSpeed = ((random(10, 60) / 30));
+			if(rotationDir == true)
+			{
+				asteroidRotationSpeed = -asteroidRotationSpeed;
+				println(asteroidRotationSpeed);
+			}
 			startRotPos = random(0, 360);
-			asteroidRotation = startRotPos;
+			asteroidRotationInit = startRotPos;
 
-			asteroidOffset = new PVector(512, 512);
+			asteroidOffset = new PVector(middle, middle);
 			asteroidSpawnPos = new PVector(spawnDist * sin(startRotPos), spawnDist * cos(startRotPos));
 			asteroidPos = new PVector((asteroidSpawnPos.x + asteroidOffset.x), (asteroidSpawnPos.y + asteroidOffset.y));
 
