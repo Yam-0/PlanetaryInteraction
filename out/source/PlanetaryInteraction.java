@@ -53,6 +53,7 @@ int score;
 int lives;
 int highscore;
 int framesPlayingCrystalSong;
+int loadingScreenIterator;
 
 String[] highscores;
 
@@ -76,12 +77,19 @@ SoundFile pickupSound;
 SoundFile menu;
 SoundFile main;
 SoundFile crystal;
+SoundFile asteroidHitSound;
+SoundFile rocketThrustSound;
 
-public void setup() {
+public void setup() 
+{
+	thread("loading");
+
 	//import audio from data folder
 	hitSound = new SoundFile(this, "Hit.wav");
   	laserSound = new SoundFile(this, "Laser.wav");
 	pickupSound = new SoundFile(this, "Pickup.wav");
+	asteroidHitSound = new SoundFile(this, "AsteroidDestroy.wav");
+	rocketThrustSound = new SoundFile(this, "Rocket.wav");
 
 	menu = new SoundFile(this, "Menu.wav");
 	main = new SoundFile(this, "Main.wav");
@@ -105,7 +113,15 @@ public void setup() {
 	//don't start in debug mode
 	debugView = false;
 }
-public void reset(){
+public void loading()
+{
+	background(0);
+	textAlign(CENTER);
+	textSize(44);
+	text("Loading", 512, 512);
+}
+public void reset()
+{
 	//reset every variable except debug
 	//load rocket.png image 
 	rocketImage = loadImage("Rocket.png");
@@ -286,6 +302,21 @@ public void SinglePlayer()
 	if(menu.isPlaying() == false && main.isPlaying() == false && crystal.isPlaying() == false)
 	{
 		main.play();
+	}
+	if(crystal.isPlaying() == true)
+	{
+		maxSpeed = 10;
+		thrusterStrength = 10;
+	}
+
+	//rocket thrust sound effect
+	if(rocketThrustSound.isPlaying() != true && up == true)
+	{
+		rocketThrustSound.play();
+	}
+	if(rocketThrustSound.isPlaying() == true && up == false)
+	{
+		rocketThrustSound.stop();
 	}
 
 	if(lives <= 0 && debugView == false)
@@ -606,7 +637,8 @@ public void SinglePlayerLostScreen()
 {
 	background(255, 0, 0);
 
-	if(main.isPlaying())
+	//loop music
+	if(debugView == true)
 	{
 		main.stop();
 	}
@@ -636,7 +668,7 @@ public void SinglePlayerLostScreen()
 		textAlign(CENTER);
 		text("DU SUGER!", 512, 512);
 	}
-	else if(debugView == false)
+	if(debugView == false)
 	{
 		framesPlayingCrystalSong = 0;
 		crystal.stop();
@@ -777,10 +809,10 @@ class Asteroid {
 			//collision with astroid
 			if(rocketToAsteroidDistance <= asteroidSize/2 && alive == true)
 			{
+				hitSound.play();
 				alive = false; //disable astroid
 				if(!debugView)
 				{
-					hitSound.play();
 					lives--; 
 				}
 			}
@@ -835,8 +867,10 @@ class Asteroid {
 					{
 						if(!debugView)
 						{
+							asteroidHitSound.play();
 							score++;
 						}
+						
 						alive = false;
 					}
 				}
