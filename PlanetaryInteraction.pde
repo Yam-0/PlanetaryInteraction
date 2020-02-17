@@ -13,6 +13,7 @@ PVector rocketScale;
 PVector tipPosition;
 
 ArrayList <Asteroid> asteroids = new ArrayList <Asteroid>();
+ArrayList <ExhaustParticle> exhaustParticles = new ArrayList <ExhaustParticle>();
 
 float thrusterStrength;
 float gravityStrength;
@@ -33,6 +34,7 @@ int asteroidspawnFrames;
 int score;
 int lives;
 int highscore;
+int framesPlayingCrystalSong;
 
 String[] highscores;
 
@@ -48,10 +50,14 @@ boolean debugView;
 boolean infiniteAmmo = false;
 boolean enteredAmmoZone;
 boolean fetched;
+boolean frameSwitch;
 
 SoundFile hitSound;
 SoundFile laserSound;
 SoundFile pickupSound;
+SoundFile menu;
+SoundFile main;
+SoundFile crystal;
 
 void setup() {
 	//import audio from data folder
@@ -59,7 +65,15 @@ void setup() {
   	laserSound = new SoundFile(this, "Laser.wav");
 	pickupSound = new SoundFile(this, "Pickup.wav");
 
+	menu = new SoundFile(this, "Menu.wav");
+	main = new SoundFile(this, "Main.wav");
+	crystal = new SoundFile(this, "crystal.mp3");
+
+	//defines start scene
 	sceneIndex = 0;
+
+	//ignore this
+	frameSwitch = true;
 
 	//set start amount of ammo
 	startAmmo = 3;
@@ -104,6 +118,7 @@ void reset(){
 	score = 0;
 	lives = 3;
 	asteroidspawnFrames = 0;
+	framesPlayingCrystalSong = 0;
 
 	//reset to start amount
 	ammo = startAmmo;
@@ -183,6 +198,12 @@ public float getAngle(PVector target, PVector here) {
 
 void StartScreen()
 {
+	//loop music
+	if(menu.isPlaying() != true)
+	{
+		menu.play();
+	}
+
 	//draws background
 	background(255, 255, 255);
 	fill(200, 200, 200);
@@ -230,6 +251,12 @@ void StartScreen()
 }
 void InstructionsForSinglePlayer()
 {
+	//loop music
+	if(menu.isPlaying() != true)
+	{
+		menu.play();
+	}
+
 	background(0);
 	if(keyPressed){
 		sceneIndex = 2;
@@ -237,8 +264,15 @@ void InstructionsForSinglePlayer()
 }
 void SinglePlayer()
 {
+	//change and loop other music file
+	if(menu.isPlaying() == false && main.isPlaying() == false && crystal.isPlaying() == false)
+	{
+		main.play();
+	}
+
 	if(lives <= 0 && debugView == false)
 	{
+		main.stop();
 		sceneIndex = 3;
 	}
 
@@ -272,7 +306,7 @@ void SinglePlayer()
 
 	//get distance to star
 	distanceToStar = getDistance(position.x, position.y);
-	if(distanceToStar <= 5)
+	if(distanceToStar <= 25)
 	{
 		sceneIndex = 3;
 		return;
@@ -367,10 +401,21 @@ void SinglePlayer()
 	fill(255, 255, 0);
 	ellipse(512, 512, 25, 25);
 
-	//draw asteroid
-	for (Asteroid s : asteroids) 
+	if(up == true)
 	{
-		s.display();
+		exhaustParticles.add(new ExhaustParticle());
+	}
+
+	//draw asteroid
+	for (Asteroid a1 : asteroids) 
+	{
+		a1.displayAstroid();
+	}
+
+	//draw exhaust
+	for (ExhaustParticle a2 : exhaustParticles) 
+	{
+		a2.displayParticle();
 	}
 
 	//update position and rotation
@@ -526,7 +571,7 @@ void SinglePlayer()
 	}
 
 
-// Heads Up Display:
+	// Heads Up Display:
 	//Score text
 	textAlign(LEFT);
 	textSize(44);
@@ -542,6 +587,43 @@ void SinglePlayer()
 void SinglePlayerLostScreen()
 {
 	background(255, 0, 0);
+
+	if(main.isPlaying())
+	{
+		main.stop();
+	}
+	if(crystal.isPlaying() == true)
+	{
+		framesPlayingCrystalSong++;
+	}
+	if(crystal.isPlaying() == false && debugView == true)
+	{
+		crystal.play();
+	}
+	if(debugView == true && framesPlayingCrystalSong >= 900)
+	{
+		if(frameSwitch)
+		{
+			background(0);
+			fill(255, 255, 255);
+			frameSwitch = false;
+		}
+		else
+		{
+			background(255, 255, 255);
+			fill(0);
+			frameSwitch = true;
+		}
+		textSize(200);
+		textAlign(CENTER);
+		text("DU SUGER!", 512, 512);
+	}
+	else if(debugView == false)
+	{
+		framesPlayingCrystalSong = 0;
+		crystal.stop();
+	}
+
 	textSize(50);
 	fill(255, 255, 255);
 	textAlign(CENTER);
@@ -625,9 +707,9 @@ class Asteroid {
 	float rocketToAsteroidAngle;
 
 	boolean init = false; //boolean to check if class object spawned this frame
-	boolean alive = false;
+	boolean alive = true;
 
-	void display()
+	void displayAstroid()
 	{
 		if(init)
 		{	
@@ -659,6 +741,7 @@ class Asteroid {
 			}
 
 			popMatrix();
+			
 
 			rectMode(LEFT);//reset rectMode
 			asteroidGravity -= asteroidSize/5 - asteroidSize/6;
@@ -743,8 +826,6 @@ class Asteroid {
 		}
 		else
 		{	//only do this once when the astroid spawns
-			alive = true;
-
 			asteroidSize = random(30, 60);
 			startRotPos = random(0, 360);
 			asteroidRotation = startRotPos;
@@ -755,6 +836,77 @@ class Asteroid {
 
 			//makes sure this only happens once
 			init = true;
+		}
+	}
+}
+
+class ExhaustParticle {
+	PVector particlePos;
+	PVector particleSpawnPos;
+	PVector particleOffset;
+	PVector particleSize;
+	PVector delta;
+	PVector exhaustPos;
+
+	float particleSpeed;
+	float killSpeed;
+	
+	int aliveTime;
+
+	boolean initParticle = false; //boolean to check if class object spawned this frame
+	boolean aliveParticle = false;
+
+	void displayParticle()
+	{
+		if(initParticle)
+		{
+			if(aliveTime >= 50)
+			{
+				aliveParticle = false;
+			}
+
+			if(aliveParticle)
+			{
+				particleSize.x -= 0.05;
+				particleSize.y -= 0.05;
+
+				if(particleSize.x <= 0 || particleSize.y <= 0)
+				{
+					aliveParticle = false;
+				}
+
+				rectMode(CENTER);
+				if(aliveTime <= 20)
+				{
+					fill(lerpColor((#ff5900), (#ffff00), (float)(aliveTime)/20));
+				}
+				else if(aliveTime <= 40)
+				{
+					fill(lerpColor((#ffff00), (#c9c9c9), (float)(aliveTime - 20)/20));
+				}
+				else
+				{
+					fill(lerpColor((#c9c9c9), (color(201, 201, 201, 0)), (float)(aliveTime - 40)/10));
+				}
+				rect(particlePos.x, particlePos.y, particleSize.x, particleSize.y);
+				aliveTime++;
+				rectMode(LEFT);
+			}
+		}
+		else
+		{
+			//only do this once when the exhaust particle spawns
+			exhaustPos = (offsetWithAngle((rocketCenterOfMass), angle, -5));
+
+			PVector spawnOffset = new PVector(random(0, 10) + exhaustPos.x, random(0, 10) + exhaustPos.y);
+			particlePos = new PVector(rocketCenterOfMass.x + spawnOffset.x, rocketCenterOfMass.y + spawnOffset.y);
+			float particleSizeRandom = random(5, 10);
+			particleSize = new PVector(particleSizeRandom, particleSizeRandom);
+			aliveTime = 0;
+			aliveParticle = true;
+
+			//makes sure this only happens once
+			initParticle = true;
 		}
 	}
 }
