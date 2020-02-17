@@ -1,3 +1,6 @@
+import processing.sound.*;
+Sound s;
+
 PImage rocketImage;
 
 PVector offset;
@@ -46,7 +49,16 @@ boolean infiniteAmmo = false;
 boolean enteredAmmoZone;
 boolean fetched;
 
+SoundFile hitSound;
+SoundFile laserSound;
+SoundFile pickupSound;
+
 void setup() {
+	//import audio from data folder
+	hitSound = new SoundFile(this, "Hit.wav");
+  	laserSound = new SoundFile(this, "Laser.wav");
+	pickupSound = new SoundFile(this, "Pickup.wav");
+
 	sceneIndex = 0;
 
 	//set start amount of ammo
@@ -241,6 +253,7 @@ void SinglePlayer()
 		enteredAmmoZone = true;
 		if(ammo != startAmmo)
 		{
+			pickupSound.play();
 			ammo = startAmmo;
 			if(debugView == true)
 			{
@@ -398,6 +411,7 @@ void SinglePlayer()
 	{
 		if(ammo != 0 || infiniteAmmo == true)
 		{
+			laserSound.play();
 			pushMatrix();
 			translate(tipPosition.x, tipPosition.y);
 			rotate(radians(angle - 90));
@@ -629,6 +643,7 @@ class Asteroid {
 				alive = false;
 				if(!debugView)
 				{
+					hitSound.play();
 					lives--;
 				}
 			}
@@ -664,6 +679,7 @@ class Asteroid {
 				alive = false; //disable astroid
 				if(!debugView)
 				{
+					hitSound.play();
 					lives--; 
 				}
 			}

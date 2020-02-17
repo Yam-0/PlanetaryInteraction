@@ -3,6 +3,8 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import processing.sound.*; 
+
 import java.util.HashMap; 
 import java.util.ArrayList; 
 import java.io.File; 
@@ -13,6 +15,9 @@ import java.io.OutputStream;
 import java.io.IOException; 
 
 public class PlanetaryInteraction extends PApplet {
+
+
+Sound s;
 
 PImage rocketImage;
 
@@ -62,7 +67,16 @@ boolean infiniteAmmo = false;
 boolean enteredAmmoZone;
 boolean fetched;
 
+SoundFile hitSound;
+SoundFile laserSound;
+SoundFile pickupSound;
+
 public void setup() {
+	//import audio from data
+	hitSound = new SoundFile(this, "Hit.wav");
+  	laserSound = new SoundFile(this, "Laser.wav");
+	pickupSound = new SoundFile(this, "Pickup.wav");
+
 	sceneIndex = 0;
 
 	//set start amount of ammo
@@ -257,6 +271,7 @@ public void SinglePlayer()
 		enteredAmmoZone = true;
 		if(ammo != startAmmo)
 		{
+			pickupSound.play();
 			ammo = startAmmo;
 			if(debugView == true)
 			{
@@ -414,6 +429,7 @@ public void SinglePlayer()
 	{
 		if(ammo != 0 || infiniteAmmo == true)
 		{
+			laserSound.play();
 			pushMatrix();
 			translate(tipPosition.x, tipPosition.y);
 			rotate(radians(angle - 90));
@@ -645,6 +661,7 @@ class Asteroid {
 				alive = false;
 				if(!debugView)
 				{
+					hitSound.play();
 					lives--;
 				}
 			}
@@ -680,6 +697,7 @@ class Asteroid {
 				alive = false; //disable astroid
 				if(!debugView)
 				{
+					hitSound.play();
 					lives--; 
 				}
 			}
