@@ -75,6 +75,7 @@ boolean fired;
 boolean debugView;
 boolean infiniteAmmo = false;
 boolean enteredAmmoZone;
+boolean enteredBoosterZone;
 boolean fetched;
 boolean frameSwitch;
 
@@ -382,6 +383,16 @@ public void SinglePlayer()
 	{
 		enteredAmmoZone = false;
 	}
+	if(distanceToStar <= (playfield/3)/4 && enteredBoosterZone != true)
+	{
+		enteredBoosterZone = true;
+		thrusterStrength *= 2;
+	}
+	if(distanceToStar >= (playfield/3)/4 && enteredBoosterZone == true)
+	{
+		enteredBoosterZone = false;
+		thrusterStrength /= 2;
+	}
 
 	//apply speed
 	position.x += speed.y;
@@ -505,6 +516,7 @@ public void SinglePlayer()
 	pushMatrix();
 	translate(position.x, position.y);
 	rotate(radians(angle));
+	imageMode(CORNER);
 	image(rocketImage, (-rocketScale.x)/2, (-rocketScale.y)/2 - centerOffset, rocketScale.x, rocketScale.y);
 	popMatrix();
 
@@ -531,8 +543,8 @@ public void SinglePlayer()
 	translate(tipPosition.x, tipPosition.y);
 	rotate(radians(angle - 90));
 	fill(255, 255, 255);
-	rectMode(LEFT);
-	rect(0, -0.05f/2, 2048, 0.05f);
+	rectMode(RIGHT);
+	rect(0, 0/2, 2048, 0.05f);
 	popMatrix();
 
 	//fire event
@@ -670,6 +682,7 @@ public void SinglePlayer()
 }
 public void SinglePlayerLostScreen()
 {
+	rocketThrustSound.stop();
 	background(255, 0, 0);
 
 	//loop music
@@ -922,7 +935,7 @@ class Asteroid {
 		else
 		{	//only do this once when the astroid spawns
 			asteroidSize = random(30, 60);
-			if((-1 + (int)random(2) * 2) == 1)
+			if((-1 + (int)random(2) * 2) == 1) //creates a 50/50 chance of inverting astroid rotation direction
 			{
 				rotationDir = true;
 			}
@@ -934,7 +947,6 @@ class Asteroid {
 			if(rotationDir == true)
 			{
 				asteroidRotationSpeed = -asteroidRotationSpeed;
-				println(asteroidRotationSpeed);
 			}
 			startRotPos = random(0, 360);
 			asteroidRotationInit = startRotPos;
