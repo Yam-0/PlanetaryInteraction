@@ -151,7 +151,7 @@ void reset()
 	tipPosition = new PVector(0, 0);
 
 	//positional variables
-	distanceToStar = 0;
+	distanceToStar = 0; //distance to star from rocket
 	heading = 0; //direction of momentum 0-360
 	angle = 0; //angle of rocket 0-360
 	centerOffset = 15; //offset from center off mass
@@ -179,9 +179,9 @@ void reset()
 	up = down = left = right = false;
 	
 	//other booleans
-	enteredAmmoZone = false;
-	fetched = false;
-	spawnasteroids = true;
+	enteredAmmoZone = false; //update boolean to reload
+	fetched = false; //switch boolean to make sure highscore is only loaded once
+	spawnasteroids = true; //makes it possible to disable asteroid spawning
 }
 
 void draw() {
