@@ -1,3 +1,4 @@
+//Tage Åkerström - TE19A | 2020
 import processing.sound.*; //library for sound handling
 Sound s; //defined sound derivative
 
@@ -44,6 +45,7 @@ int ammo;//current ammo value
 int startAmmo;//start ammo value
 int sceneIndex;//current scene index
 int asteroidspawnFrames;//spawn asteroid cooldown iteratable variable
+int spawnVal;//frames until spawn astroid trigger
 int score;//current score
 int lives;//current health
 int highscore;//highscore read from txt
@@ -88,7 +90,7 @@ void setup()
 	size(1024, 1024);
 	middle = 1024/2;
 
-	//"loading" text
+	//"loading" text function
 	loading0();
 
 	//load sound effect files
@@ -168,6 +170,7 @@ void reset()
 	lives = 3; //start health 0
 	asteroidspawnFrames = 0; //iteratable variable
 	framesPlayingCrystalSong = 0; //ignore this
+	spawnVal = 300; //spawn asteroid every five secounds in the beginning
 
 	//reset to start amount
 	ammo = startAmmo;
@@ -530,12 +533,16 @@ void SinglePlayer()
 
 	heading = getAngleXY(speed.x, speed.y); //calculate momentum direction
 
-	if(asteroidspawnFrames >= 300) //instantiate asteroid if iteratable variable is over 300 frames
+	if(asteroidspawnFrames >= spawnVal) //instantiate asteroid if iteratable variable is over 300 frames
 	{
-		if(spawnasteroids == true) //only spawn if spawnasteroids is true
+		if(spawnasteroids == true) //only spawn if spawn asteroids is allowed 
 		{
 			asteroids.add(new Asteroid()); //spawn astroid
 			asteroidspawnFrames = 0; //reset spawn iteration
+			if(spawnVal > 90)
+			{
+				spawnVal -= 5;//instantiate asteroid five frames earlier for every asteroid spawned until asteroids spawn every 1.5 secounds
+			}
 		}
 	}
 	else

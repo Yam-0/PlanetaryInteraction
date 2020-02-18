@@ -16,6 +16,7 @@ import java.io.IOException;
 
 public class PlanetaryInteraction extends PApplet {
 
+//Tage Åkerström - TE19A | 2020
  //library for sound handling
 Sound s; //defined sound derivative
 
@@ -62,6 +63,7 @@ int ammo;//current ammo value
 int startAmmo;//start ammo value
 int sceneIndex;//current scene index
 int asteroidspawnFrames;//spawn asteroid cooldown iteratable variable
+int spawnVal;//frames until spawn astroid trigger
 int score;//current score
 int lives;//current health
 int highscore;//highscore read from txt
@@ -106,7 +108,7 @@ public void setup()
 	
 	middle = 1024/2;
 
-	//"loading" text
+	//"loading" text function
 	loading0();
 
 	//load sound effect files
@@ -186,6 +188,7 @@ public void reset()
 	lives = 3; //start health 0
 	asteroidspawnFrames = 0; //iteratable variable
 	framesPlayingCrystalSong = 0; //ignore this
+	spawnVal = 300; //spawn asteroid every five secounds in the beginning
 
 	//reset to start amount
 	ammo = startAmmo;
@@ -548,12 +551,17 @@ public void SinglePlayer()
 
 	heading = getAngleXY(speed.x, speed.y); //calculate momentum direction
 
-	if(asteroidspawnFrames >= 300) //instantiate asteroid if iteratable variable is over 300 frames
+	if(asteroidspawnFrames >= spawnVal) //instantiate asteroid if iteratable variable is over 300 frames
 	{
-		if(spawnasteroids == true) //only spawn if spawnasteroids is true
+		if(spawnasteroids == true) //only spawn if spawn asteroids is allowed 
 		{
 			asteroids.add(new Asteroid()); //spawn astroid
 			asteroidspawnFrames = 0; //reset spawn iteration
+			if(spawnVal > 60)
+			{
+				spawnVal -= 5;
+				println(spawnVal);
+			}
 		}
 	}
 	else
