@@ -16,16 +16,21 @@ import java.io.IOException;
 
 public class PlanetaryInteraction extends PApplet {
 
+ //library for sound handling
+Sound s; //defined sound derivative
 
-Sound s;
+//variables representing images - get loaded in setup
+PImage rocketImage; //Rocket shape
+PImage ammoIcon; //Ammo icon displayed under rocket
+PImage asteroid1; //Astroid image
 
-PImage rocketImage;
-PImage asteroid1;
+//images for "parallax effect" used in start screen - get loaded in setup
 PImage parallax1;
 PImage parallax2;
 PImage parallax3;
 PImage parallax4;
 
+//vector2 variables 
 PVector offset;
 PVector speed;
 PVector position;
@@ -35,9 +40,11 @@ PVector speedToStar;
 PVector rocketScale;
 PVector tipPosition;
 
+//arrays for spawning objects from class
 ArrayList <Asteroid> asteroids = new ArrayList <Asteroid>();
 ArrayList <ExhaustParticle> exhaustParticles = new ArrayList <ExhaustParticle>();
 
+//floats
 float thrusterStrength;
 float gravityStrength;
 float rotationSpeed;
@@ -49,9 +56,9 @@ float maxSpeed;
 float centerOffset;
 float playfield;
 float distanceToTip;
-
 float middle;
 
+//integers
 int ammo;
 int startAmmo;
 int sceneIndex;
@@ -61,14 +68,18 @@ int lives;
 int highscore;
 int framesPlayingCrystalSong;
 int loadingScreenIterator;
+int i; //temp variable for debugging purposes
 
+//string array for writing to highscores.txt
 String[] highscores;
 
+//vector2 temporary float variables
 float addspeedX;
 float addspeedY;
 float speedToStarX;
 float speedToStarY;
 
+//booleans
 boolean up, down, left, right;
 boolean spawnasteroids;
 boolean fired;
@@ -79,6 +90,7 @@ boolean enteredBoosterZone;
 boolean fetched;
 boolean frameSwitch;
 
+//sound files - get loaded in setup
 SoundFile hitSound;
 SoundFile laserSound;
 SoundFile pickupSound;
@@ -88,15 +100,17 @@ SoundFile crystal;
 SoundFile asteroidHitSound;
 SoundFile rocketThrustSound;
 
+//setup function used for loading assets
 public void setup() 
 {
 	//window size
 	
 	middle = 1024/2;
 
-	thread("loading");
+	//"loading" text
+	loading0();
 
-	//import sound effects from data folder
+	//load sound effect files
 	hitSound = new SoundFile(this, "Hit.wav");
   	laserSound = new SoundFile(this, "Laser.wav");
 	pickupSound = new SoundFile(this, "Pickup.wav");
@@ -109,14 +123,14 @@ public void setup()
 	crystal = new SoundFile(this, "crystal.mp3");
 
 	//load images
-	rocketImage = loadImage("Rocket.png");
-
 	parallax1 = loadImage("Parallax1.png");
 	parallax2 = loadImage("Parallax2.png");
 	parallax3 = loadImage("Parallax3.png");
 	parallax4 = loadImage("Parallax4.png");
 
+	rocketImage = loadImage("Rocket.png");
 	asteroid1 = loadImage("Asteroid1.png");
+	ammoIcon = loadImage("BulletIcon.png");
 
 	//defines start scene
 	sceneIndex = 0;
@@ -133,8 +147,9 @@ public void setup()
 	//don't start in debug mode
 	debugView = false;
 }
-public void loading()
+public void loading0()
 {
+	//loading text shown during startup
 	background(0);
 	textAlign(CENTER);
 	textSize(44);
@@ -142,9 +157,9 @@ public void loading()
 }
 public void reset()
 {
-	//reset every variable except debug
+	//reset gameplay variables
 	
-	//vector2 variables
+	//vector2 variables, set to standard values
 	speed = new PVector(0, 4);
 	position = new PVector(middle, 700);
 	addSpeed = new PVector(0, 0);
@@ -153,33 +168,37 @@ public void reset()
 	offset = new PVector(0, 0);
 	tipPosition = new PVector(0, 0);
 
-	//positional variables and other floats
+	//positional variables
 	distanceToStar = 0;
-	thrusterStrength = 0.016f;
-	gravityStrength = 0.05f;
-	rotationSpeed = 3;
-	heading = 0;
-	angle = 0;
-	maxSpeed = 5.5f;
-	centerOffset = 15;
-	angleToStar = 0;
-	playfield = 800;
-	distanceToTip = 45;
+	heading = 0; //direction of momentum 0-360
+	angle = 0; //angle of rocket 0-360
+	centerOffset = 15; //offset from center off mass
+	angleToStar = 0; //rocket to star angle 0-360
+	playfield = 800; //size of outer circle
+	distanceToTip = 45; //offset distance from center off mass to tip off rocket
+
+	//other floats
+	rotationSpeed = 3; //amount to rotate rocket by
+	gravityStrength = 0.05f; //default strength - never used
+	maxSpeed = 5.5f; //limits speed
+	thrusterStrength = 0.016f; //strength of rocket
 
 	//integers
-	score = 0;
-	lives = 3;
-	asteroidspawnFrames = 0;
-	framesPlayingCrystalSong = 0;
+	score = 0; //start score 0
+	lives = 3; //start health 0
+	asteroidspawnFrames = 0; //iteratable variable
+	framesPlayingCrystalSong = 0; //ignore this
 
 	//reset to start amount
 	ammo = startAmmo;
 
 	//input booleans
-	spawnasteroids = true;
 	up = down = left = right = false;
+	
+	//other booleans
 	enteredAmmoZone = false;
 	fetched = false;
+	spawnasteroids = true;
 }
 
 public void draw() {
@@ -260,40 +279,41 @@ public void StartScreen()
 	//draws background
 	background(0);
 
-	imageMode(CORNER);
-	image(parallax4, 0 + (mouseX/24 - middle), 0 + (mouseY/24 - middle));
-	image(parallax3, 0 + (mouseX/12 - middle), 0 + (mouseY/12 - middle));
-	image(parallax2, 0 + (mouseX/8 - middle), 0 + (mouseY/8 - middle));
-	image(parallax1, 0 + (mouseX/4 - middle), 0 + (mouseY/4 - middle));
+	//images used for parallax effect
+	imageMode(CORNER); //center images
+	image(parallax4, 0 + (mouseX/24 - middle), 0 + (mouseY/24 - middle)); //offset from center 1/24 of mouse pos
+	image(parallax3, 0 + (mouseX/12 - middle), 0 + (mouseY/12 - middle)); //offset from center 1/12 of mouse pos
+	image(parallax2, 0 + (mouseX/8 - middle), 0 + (mouseY/8 - middle)); //offset from center 1/8 of mouse pos
+	image(parallax1, 0 + (mouseX/4 - middle), 0 + (mouseY/4 - middle)); //offset from center 1/4 of mouse pos
 
 	//header backdrop
-	fill(0);
+	fill(0); //black
 	rectMode(CENTER);
-	rect(middle, 500, 600, 100);
+	rect(middle, 500, 600, 100);//makes sure stars never show upp behind title
 
 	//header
-	fill(255, 255, 255);
+	fill(255, 255, 255);//white
 	textAlign(CENTER);
 	textSize(44);
-	text("PLANETARY INTERACTION", middle, middle);
+	text("PLANETARY INTERACTION", middle, middle); //main header text
 	
 	//"click to continue" text
 	//mouse hover effect
-	if(mouseY > 770 && mouseY < 800 && mouseX < 612 && mouseX > 412)
+	if(mouseY > 770 && mouseY < 800 && mouseX < 612 && mouseX > 412)//tests if mouse pos is over button pos
 	{
-		fill(250, 250, 250);
+		fill(250, 250, 250); //hover effect
 		if(mousePressed){
-			sceneIndex++;
+			sceneIndex++; //go to next scene if button clicked
 		}
 	}
 	else 
 	{
-		fill(150, 150, 150);
+		fill(150, 150, 150);// standard color
 	}
 
 	textAlign(CENTER);
 	textSize(22);
-	text("Click to continue", middle, 800);
+	text("Click to continue", middle, 800); //startscreen button
 
 	//debug mode tools
 	if(debugView)
@@ -324,22 +344,24 @@ public void InstructionsForSinglePlayer()
 
 	textAlign(LEFT);
 	textSize(24);
-	text("These are some basic instructions for my game", 10, 40);
+	text("These are some basic instructions for my game", 10, 40);//instructions header
 
-
+	//goto next scene if any button pressed
 	if(keyPressed){
 		sceneIndex = 2;
 	}
 }
+//main gameplay loop
 public void SinglePlayer()
 {
 	//change and loop other music file
 	if(menuMusic.isPlaying() == false && main.isPlaying() == false && crystal.isPlaying() == false)
 	{
-		main.play();
+		main.play();//play main music file
 	}
-	if(crystal.isPlaying() == true)
+	if(crystal.isPlaying() == true) //easter egg song
 	{
+		//easter egg gameplay settings
 		maxSpeed = 10;
 		thrusterStrength = 10;
 	}
@@ -347,17 +369,20 @@ public void SinglePlayer()
 	//rocket thrust sound effect
 	if(rocketThrustSound.isPlaying() != true && up == true)
 	{
+		//play sound effect if up is true
 		rocketThrustSound.play();
 	}
 	if(rocketThrustSound.isPlaying() == true && up == false)
 	{
+		//stop sound effect if up is false
 		rocketThrustSound.stop();
 	}
 
 	if(lives <= 0 && debugView == false)
 	{
-		main.stop();
-		sceneIndex = 3;
+		//kill player if lives is less or equal to zero
+		main.stop(); //stop playing music
+		sceneIndex = 3; //change to game over scene
 	}
 
 	//set tip position vector 2
@@ -386,21 +411,21 @@ public void SinglePlayer()
 	if(distanceToStar <= (playfield/3)/4 && enteredBoosterZone != true)
 	{
 		enteredBoosterZone = true;
-		thrusterStrength *= 2;
+		thrusterStrength *= 2; //double thruster strength if really close to star
 	}
 	if(distanceToStar >= (playfield/3)/4 && enteredBoosterZone == true)
 	{
 		enteredBoosterZone = false;
-		thrusterStrength /= 2;
+		thrusterStrength /= 2; //half thruster strength if player exit "close to star" zone
 	}
 
-	//apply speed
+	//apply speed to position
 	position.x += speed.y;
 	position.y -= speed.x;
 
 	//get distance to star
 	distanceToStar = getDistance(position.x, position.y);
-	if(distanceToStar <= 25)
+	if(distanceToStar <= 25) //kill player if too close to star
 	{
 		sceneIndex = 3;
 		return;
@@ -486,11 +511,14 @@ public void SinglePlayer()
 
 	//set background color
 	background(0);
+	imageMode(CENTER);
+	image(parallax4, 512, 512);
+	imageMode(CORNER);
 
 	//star reload area, and play area
-	fill(15, 15, 15);
+	fill(15, 15, 15, 150);
 	ellipse(middle, middle, playfield, playfield);
-	fill(25, 25, 25);
+	fill(25, 25, 25, 150);
 	ellipse(middle, middle, playfield/3, playfield/3);
 	fill(255, 255, 0);
 	ellipse(middle, middle, 25, 25);
@@ -675,10 +703,28 @@ public void SinglePlayer()
 	text("Score : " + score, 20, 60);
 
 	//lives text
-	text("Lives : " + lives, 20, 100);
+	textAlign(CENTER);
+	fill(255, 255,255);
+	textSize(48);
+	text(lives, middle, middle - 24);
 
-	//ammo text
-	text("Ammo : " + ammo, 20, 1000);
+	//Ammo
+	imageMode(CENTER);
+	if(infiniteAmmo == false)
+	{
+		if(ammo >= 1)
+		{
+			image(ammoIcon, position.x - 40, position.y + 45, 39/2, 14/2);
+		}
+		if(ammo >= 2)
+		{
+			image(ammoIcon, position.x, position.y + 45, 39/2, 14/2);
+		}
+		if(ammo >= 3)
+		{
+			image(ammoIcon, position.x + 40, position.y + 45, 39/2, 14/2);
+		}
+	}
 }
 public void SinglePlayerLostScreen()
 {
