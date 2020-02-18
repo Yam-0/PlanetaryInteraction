@@ -322,9 +322,9 @@ void InstructionsForSinglePlayer()
 	//background black
 	background(0);
 
-	textAlign(LEFT);
+	textAlign(CENTER);
 	textSize(24);
-	text("These are some basic instructions for my game", 10, 40);//instructions header
+	text("Press any button to start", 512, 512);//instructions header
 
 	//goto next scene if any button pressed
 	if(keyPressed){
@@ -683,10 +683,7 @@ void SinglePlayer()
 	text("Score : " + score, 20, 60);
 
 	//lives text
-	textAlign(CENTER);
-	fill(255, 255,255);
-	textSize(48);
-	text(lives, middle, middle - 24);
+	text("Lives : " + lives, 20, 100);
 
 	//ammo text
 	text("Ammo : " + ammo, 20, 1000);
