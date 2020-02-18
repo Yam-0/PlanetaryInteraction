@@ -4,7 +4,7 @@ Sound s; //defined sound derivative
 
 //variables representing images - get loaded in setup
 PImage rocketImage; //Rocket shape
-PImage asteroid1; //Astroid image
+PImage asteroid1; //Asteroid image
 
 //images for "parallax effect" used in start screen - get loaded in setup
 PImage parallax1;
@@ -45,7 +45,7 @@ int ammo;//current ammo value
 int startAmmo;//start ammo value
 int sceneIndex;//current scene index
 int asteroidspawnFrames;//spawn asteroid cooldown iteratable variable
-int spawnVal;//frames until spawn astroid trigger
+int spawnVal;//frames until spawn asteroid trigger
 int score;//current score
 int lives;//current health
 int highscore;//highscore read from txt
@@ -514,7 +514,7 @@ void SinglePlayer()
 	//draw asteroid
 	for (Asteroid a1 : asteroids) 
 	{
-		a1.displayAstroid();
+		a1.displayAsteroid();
 	}
 
 	//draw exhaust particles
@@ -537,7 +537,7 @@ void SinglePlayer()
 	{
 		if(spawnasteroids == true) //only spawn if spawn asteroids is allowed 
 		{
-			asteroids.add(new Asteroid()); //spawn astroid
+			asteroids.add(new Asteroid()); //spawn asteroid
 			asteroidspawnFrames = 0; //reset spawn iteration
 			if(spawnVal > 90)
 			{
@@ -831,7 +831,7 @@ class Asteroid {
 	boolean alive = true; //is asteroid "alive"
 
 	//display asteroid this frame
-	void displayAstroid()
+	void displayAsteroid()
 	{
 		if(init)
 		{	
@@ -876,7 +876,7 @@ class Asteroid {
 			rectMode(LEFT);//reset rectMode
 			asteroidGravity -= asteroidSize/5 - asteroidSize/6; //increase asteroid gravity if big
 
-			//trigonemetry math to calculate distance to astroid from rocket
+			//trigonemetry math to calculate distance to asteroid from rocket
 			float deltaX = asteroidPos.x - position.x;
 			float deltaY = asteroidPos.y - position.y;
 
@@ -886,11 +886,11 @@ class Asteroid {
 
 			rocketToAsteroidDistance = (float)Math.sqrt(diagonalSquared); //pytgagorean theorem
 
-			//collision with astroid
+			//collision with asteroid
 			if(rocketToAsteroidDistance <= asteroidSize/2 && alive == true)//collide with asteroid if close enough and asteroid is active
 			{
 				hitSound.play(); //play hit sound on collision
-				alive = false; //disable astroid
+				alive = false; //disable asteroid
 				if(!debugView)
 				{
 					//only decrease lives if not in debugview
@@ -899,7 +899,7 @@ class Asteroid {
 			}
 
 
-			//hit reg - check if player hit astroid with laser
+			//hit reg - check if player hit asteroid with laser
 			if(fired && alive == true)
 			{
 				//only do hit detection if you have ammo to shoot
@@ -924,7 +924,7 @@ class Asteroid {
 						rocketToAsteroidAngle -= 360;
 					}
 
-					//set max angles to be able check if hit astroid
+					//set max angles to be able check if hit asteroid
 					float maxAngle = rocketToAsteroidAngle + deltaAngle;
 					float minAngle = rocketToAsteroidAngle - deltaAngle;
 
@@ -934,13 +934,13 @@ class Asteroid {
 						println(minAngle + ", " + rocketToAsteroidAngle + ", " + maxAngle + " | " + angle);
 					}
 
-					//kill astroid if hit
+					//kill asteroid if hit
 					if(angle > minAngle && angle < maxAngle)
 					{
 						if(!debugView)//only do this if not in debug mode
 						{
 							asteroidHitSound.play(); //play asteroid hit sound if asteroid hit
-							score++; //increase score on astroid hit
+							score++; //increase score on asteroid hit
 						}
 						
 						alive = false; //disable asteroid
@@ -949,9 +949,9 @@ class Asteroid {
 			}			
 		}
 		else
-		{	//only do this once when the astroid spawns
+		{	//only do this once when the asteroid spawns
 			asteroidSize = random(30, 60);
-			if((-1 + (int)random(2) * 2) == 1) //creates a 50/50 chance of inverting astroid rotation direction
+			if((-1 + (int)random(2) * 2) == 1) //creates a 50/50 chance of inverting asteroid rotation direction
 			{
 				rotationDir = true;//normal rotation direction
 			}
@@ -1112,12 +1112,12 @@ void keyPressed()
 			//turn on/off asteroid spawning
 			if(spawnasteroids == false)
 			{
-				println("Astroid spawning turned on!");
+				println("Asteroid spawning turned on!");
 				spawnasteroids = true;
 			}
 			else 
 			{
-				println("Astroid spawning turned off!");
+				println("Asteroid spawning turned off!");
 				spawnasteroids = false;
 			}
 		}
