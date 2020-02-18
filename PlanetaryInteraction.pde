@@ -871,29 +871,18 @@ class Asteroid {
 					deltaY = position.y - asteroidPos.y;
 					rocketToAsteroidAngle = getAngleXY(deltaX, deltaY);
 
+					while(rocketToAsteroidAngle < 0) 
+					{
+						rocketToAsteroidAngle += 360;
+					}
+					while(rocketToAsteroidAngle > 360)
+					{
+						rocketToAsteroidAngle -= 360;
+					}
+
 					//set max angles to be able check if hit astroid
 					float maxAngle = rocketToAsteroidAngle + deltaAngle;
 					float minAngle = rocketToAsteroidAngle - deltaAngle;
-
-
-					//make sure max and min angle are within degree range
-					while(maxAngle < 0) 
-					{
-						maxAngle += 360;
-					}
-					while(maxAngle > 360)
-					{
-						maxAngle -= 360;
-					}
-
-					while(minAngle < 0)
-					{
-						minAngle += 360;
-					}
-					while(minAngle > 360)
-					{
-						minAngle -= 360;
-					}
 
 					//print hitreg data if in debugview
 					if(debugView)
