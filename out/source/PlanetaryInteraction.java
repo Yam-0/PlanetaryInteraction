@@ -708,7 +708,7 @@ public void SinglePlayer()
 	text("Score : " + score, 20, 60);
 
 	//lives text
-	text("Lives : " + lives, 20, 100);
+	text("Lives : " + lives, 20, 120);
 
 	//ammo text
 	text("Ammo : " + ammo, 20, 1000);
