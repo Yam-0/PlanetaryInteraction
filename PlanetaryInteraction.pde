@@ -327,7 +327,9 @@ void InstructionsForSinglePlayer()
 
 	textAlign(CENTER);
 	textSize(24);
-	text("Press any button to start", 512, 512); //instructions header
+	text("WASD or Arrow keys to move", 512, 400); //instructions
+	text("Space to shoot", 512, 424); //instructions
+	text("Press any button to start", 512, 540); //instructions end
 
 	//goto next scene if any button pressed
 	if(keyPressed){
