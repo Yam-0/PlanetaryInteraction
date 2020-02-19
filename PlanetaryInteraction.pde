@@ -979,7 +979,7 @@ class Asteroid {
 
 //rocket exhaust particle class
 class ExhaustParticle {
-	//vectpr2 variables
+	//vector2 variables
 	PVector particlePos;//position of particle
 	PVector particleSpawnPos;//spawn position of particle
 	PVector particleOffset;//offset position of particle
