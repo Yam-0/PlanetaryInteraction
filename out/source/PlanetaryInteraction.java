@@ -106,7 +106,7 @@ public void setup()
 {
     //window size
     
-    middle = 1500/2;
+    middle = 1024/2;
  
     //"loading" text function
     loading0();
@@ -1223,7 +1223,7 @@ public void keyReleased()
     }
 }
 
-  public void settings() {  size(1920, 1080); }
+  public void settings() {  size(1024, 1024); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "PlanetaryInteraction" };
     if (passedArgs != null) {
