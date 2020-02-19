@@ -145,7 +145,7 @@ void reset()
 	speed = new PVector(0, 4);
 	position = new PVector(middle, 700);
 	addSpeed = new PVector(0, 0);
-	rocketScale = new PVector(25, 50);
+	rocketScale = new PVector(35, 65);
 	speedToStar = new PVector(0, 0);
 	offset = new PVector(0, 0);
 	tipPosition = new PVector(0, 0);
