@@ -109,7 +109,7 @@ public void setup()
 	middle = 1024/2;
 
 	//"loading" text function
-	loading0();
+	thread("loading0");
 
 	//load sound effect files
 	hitSound = new SoundFile(this, "Hit.wav");
@@ -579,7 +579,7 @@ public void SinglePlayer()
 	rotate(radians(angle - 90));
 	fill(255, 255, 255);
 	rectMode(RIGHT);
-	rect(0, 0/2, 2048, 0.05f);
+	rect(0, -(0.1f/2), 2048, 0.1f);
 	popMatrix();
 
 	//fire event
