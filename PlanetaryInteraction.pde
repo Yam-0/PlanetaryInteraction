@@ -1,4 +1,5 @@
 //Tage Åkerström - TE19A | 2020
+//Project finished 2/20/2020
 import processing.sound.*; //library for sound handling
 Sound s; //defined sound derivative
 
