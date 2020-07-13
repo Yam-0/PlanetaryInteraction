@@ -17,6 +17,7 @@ import java.io.IOException;
 public class PlanetaryInteraction extends PApplet {
 
 //Tage Åkerström - TE19A | 2020
+//Project finished 2/20/2020
  //library for sound handling
 Sound s; //defined sound derivative
 
@@ -1223,6 +1224,22 @@ public void keyReleased()
 				break;
 		}
 	}
+}
+boolean switchV;
+
+public void setup() {
+	switchV = true;
+}
+
+public void draw() {
+	if(switchV){
+		background(255);
+		switchV = false;
+	}
+}
+
+public void keyPressed() {
+	switchV = true;
 }
   public void settings() { 	size(1024, 1024); }
   static public void main(String[] passedArgs) {
